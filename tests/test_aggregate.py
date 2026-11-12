@@ -1,0 +1,211 @@
+"""API 키 없이 파싱·집계 로직을 검증한다.  실행: python -m unittest discover -s tests"""
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
+import fetch_prices as fp  # noqa: E402
+
+# 실제 응답 형태를 흉내 낸 가짜 XML (값은 임의)
+TRADE_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<response><header><resultCode>000</resultCode><resultMsg>OK</resultMsg></header>
+<body><items>
+<item><aptNm>가</aptNm><dealAmount>85,000</dealAmount><excluUseAr>84.99</excluUseAr><umdNm>대치동</umdNm><cdealType></cdealType></item>
+<item><aptNm>나</aptNm><dealAmount>90,000</dealAmount><excluUseAr>84.50</excluUseAr><umdNm>대치동</umdNm></item>
+<item><aptNm>다</aptNm><dealAmount>70,000</dealAmount><excluUseAr>59.00</excluUseAr><umdNm>대치동</umdNm></item>
+<item><aptNm>해제건</aptNm><dealAmount>99,000</dealAmount><excluUseAr>84.00</excluUseAr><umdNm>대치동</umdNm><cdealType>O</cdealType></item>
+<item><aptNm>라</aptNm><dealAmount>30,000</dealAmount><excluUseAr>59.90</excluUseAr><umdNm>상계동</umdNm></item>
+<item><aptNm>깨진값</aptNm><dealAmount>abc</dealAmount><excluUseAr>59.90</excluUseAr><umdNm>상계동</umdNm></item>
+</items><numOfRows>1000</numOfRows><pageNo>1</pageNo><totalCount>6</totalCount></body></response>
+"""
+
+RENT_XML = """<?xml version="1.0" encoding="UTF-8"?>
+<response><header><resultCode>000</resultCode><resultMsg>OK</resultMsg></header>
+<body><items>
+<item><aptNm>가</aptNm><deposit>50,000</deposit><monthlyRent>0</monthlyRent><excluUseAr>84.9</excluUseAr><umdNm>상계동</umdNm><contractType>신규</contractType></item>
+<item><aptNm>나</aptNm><deposit>40,000</deposit><monthlyRent>0</monthlyRent><excluUseAr>84.1</excluUseAr><umdNm>상계동</umdNm><contractType>갱신</contractType></item>
+<item><aptNm>다</aptNm><deposit>20,000</deposit><monthlyRent>100</monthlyRent><excluUseAr>59.0</excluUseAr><umdNm>상계동</umdNm><contractType>신규</contractType></item>
+<item><aptNm>라</aptNm><deposit>10,000</deposit><monthlyRent>150</monthlyRent><excluUseAr>59.5</excluUseAr><umdNm>상계동</umdNm></item>
+<item><aptNm>마</aptNm><deposit>0</deposit><monthlyRent>0</monthlyRent><excluUseAr>59.5</excluUseAr><umdNm>상계동</umdNm></item>
+</items><numOfRows>1000</numOfRows><pageNo>1</pageNo><totalCount>5</totalCount></body></response>
+"""
+
+
+class TestTrade(unittest.TestCase):
+    def setUp(self):
+        self.code, self.total, self.items = fp.parse_response(TRADE_XML)
+        self.trades = [t for t in (fp.to_trade(i, "강남구") for i in self.items) if t]
+
+    def test_parse(self):
+        self.assertEqual(self.code, "000")
+        self.assertEqual(self.total, 6)
+        self.assertEqual(len(self.items), 6)
+
+    def test_filters_cancelled_and_bad_rows(self):
+        self.assertEqual(len(self.trades), 4)  # 해제 1, 깨진 값 1 제외
+        self.assertNotIn("해제건", [t["apt"] for t in self.trades])
+
+    def test_bands(self):
+        self.assertEqual(fp.band_of(59.9), "S")
+        self.assertEqual(fp.band_of(60), "M")
+        self.assertEqual(fp.band_of(84.99), "M")
+        self.assertEqual(fp.band_of(85), "L")
+
+    def test_aggregate_trade(self):
+        rows = {r["dong"]: r for r in fp.aggregate(self.trades, [], min_n=2)}
+        m = rows["대치동"]["trade"]["M"]
+        self.assertEqual(m["n"], 2)
+        self.assertEqual(m["median"], 87500)           # (85000+90000)/2
+        self.assertFalse(m["low_sample"])
+        self.assertTrue(rows["상계동"]["trade"]["S"]["low_sample"])  # 1건
+
+
+class TestRent(unittest.TestCase):
+    def setUp(self):
+        _, _, items = fp.parse_response(RENT_XML)
+        self.items = items
+
+    def test_new_only_default(self):
+        rents = [r for r in (fp.to_rent(i, "노원구") for i in self.items) if r]
+        # 갱신 1건, 보증금·월세 둘 다 0인 1건 제외 -> 3건
+        self.assertEqual(len(rents), 3)
+
+    def test_include_renewal(self):
+        rents = [r for r in (fp.to_rent(i, "노원구", new_only=False) for i in self.items) if r]
+        self.assertEqual(len(rents), 4)
+
+    def test_kind_split_and_aggregate(self):
+        rents = [r for r in (fp.to_rent(i, "노원구") for i in self.items) if r]
+        row = fp.aggregate([], rents, min_n=1)[0]
+        self.assertEqual(row["jeonse"]["M"]["median"], 50000)       # 신규 전세 1건
+        w = row["wolse"]["S"]
+        self.assertEqual(w["n"], 2)
+        self.assertEqual(w["median_deposit"], 15000)                 # (20000+10000)/2
+        self.assertEqual(w["median_rent"], 125)                      # (100+150)/2
+
+
+class TestMisc(unittest.TestCase):
+    def test_recent_months_wraps_year(self):
+        from datetime import date
+        self.assertEqual(fp.recent_months(3, date(2026, 1, 15)), ["202512", "202511", "202510"])
+        self.assertEqual(fp.recent_months(2, date(2026, 11, 12)), ["202610", "202609"])
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+# ---------- 월별 캐시 / 증분 수집 ----------
+import json  # noqa: E402
+import os  # noqa: E402
+import tempfile  # noqa: E402
+import types  # noqa: E402
+from unittest import mock  # noqa: E402
+
+
+class TestCache(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.dir = self.tmp.name
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_cache_hit_skips_fetch(self):
+        calls = []
+        f = lambda: calls.append(1) or [{"a": 1}]  # noqa: E731
+        r1, how1 = fp.get_month(self.dir, "trade", "노원구", "202610", False, f)
+        r2, how2 = fp.get_month(self.dir, "trade", "노원구", "202610", False, f)
+        self.assertEqual((how1, how2, len(calls)), ("fetched", "cache", 1))
+        self.assertEqual(r2, [{"a": 1}])
+
+    def test_refresh_refetches_and_overwrites(self):
+        fp.get_month(self.dir, "trade", "노원구", "202610", False, lambda: [{"v": 1}])
+        r, how = fp.get_month(self.dir, "trade", "노원구", "202610", True, lambda: [{"v": 2}])
+        self.assertEqual((how, r), ("fetched", [{"v": 2}]))
+
+    def test_refresh_failure_falls_back_to_cache(self):
+        fp.get_month(self.dir, "trade", "노원구", "202610", False, lambda: [{"v": 1}])
+
+        def boom():
+            raise RuntimeError("API down")
+        r, how = fp.get_month(self.dir, "trade", "노원구", "202610", True, boom)
+        self.assertEqual((how, r), ("stale", [{"v": 1}]))
+
+    def test_failure_without_cache_raises(self):
+        def boom():
+            raise RuntimeError("API down")
+        with self.assertRaises(RuntimeError):
+            fp.get_month(self.dir, "trade", "노원구", "202610", False, boom)
+
+
+class TestMainEndToEnd(unittest.TestCase):
+    """requests 와 API 호출을 가짜로 바꿔 main() 전체 흐름을 검증한다."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.cache = os.path.join(self.tmp.name, "cache")
+        self.out = os.path.join(self.tmp.name, "out.json")
+        self.calls = []
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def fake_fetch(self, session, key, url, lawd, ymd, **kw):
+        self.calls.append((url.split("/")[-1], lawd, ymd))
+        if "Rent" in url:
+            return [{"deposit": "20,000", "monthlyRent": "100", "excluUseAr": "59.0", "umdNm": "상계동", "contractType": "신규"},
+                    {"deposit": "9,000", "monthlyRent": "0", "excluUseAr": "59.0", "umdNm": "상계동", "contractType": "갱신"}]
+        return [{"aptNm": "가", "dealAmount": "50,000", "excluUseAr": "84.9", "umdNm": "상계동"}]
+
+    def run_main(self, *extra):
+        argv = ["fetch_prices.py", "--gu", "노원구", "--months", "3", "--cache-dir", self.cache,
+                "--out", self.out, *extra]
+        fake_requests = types.SimpleNamespace(Session=lambda: object())
+        with mock.patch.object(sys, "argv", argv), \
+             mock.patch.dict(os.environ, {"PUBLIC_DATA_API_KEY": "test"}), \
+             mock.patch.dict(sys.modules, {"requests": fake_requests}), \
+             mock.patch.object(fp, "fetch_month", self.fake_fetch):
+            fp.main()
+
+    def test_incremental_second_run_only_refreshes_recent(self):
+        self.run_main("--refresh-months", "1")
+        self.assertEqual(len(self.calls), 3 * 2)           # 3개월 x (매매+전월세), 전부 새로 받음
+        out = json.load(open(self.out, encoding="utf-8"))
+        self.assertEqual(out["window_months"], 3)
+        row = out["dongs"][0]
+        self.assertEqual(row["wolse"]["S"]["n"], 3)         # 신규 월세 1건 x 3개월
+        # 갱신 계약(전세)은 기본 제외 -> 전세 통계 없음
+        self.assertNotIn("S", row["jeonse"])
+        self.assertEqual(row["trade"]["M"]["n"], 3)         # 3개월치가 쌓임
+
+        self.calls.clear()
+        self.run_main("--refresh-months", "1")
+        self.assertEqual(len(self.calls), 1 * 2)           # 가장 최근 1개월만 다시 받음
+
+    def test_include_renewal_uses_same_cache(self):
+        self.run_main()
+        self.calls.clear()
+        self.run_main("--refresh-months", "0", "--include-renewal")
+        self.assertEqual(self.calls, [])                    # 캐시만으로 옵션 변경 가능
+        row = json.load(open(self.out, encoding="utf-8"))["dongs"][0]
+        self.assertEqual(row["jeonse"]["S"]["n"], 3)
+
+    def test_failure_does_not_overwrite_output(self):
+        self.run_main()
+        before = open(self.out, encoding="utf-8").read()
+
+        def boom(*a, **k):
+            raise RuntimeError("down")
+        # 캐시 하나를 지우고(= 필수 데이터 누락) API 까지 실패하면 결과 파일을 건드리면 안 된다
+        import glob
+        victim = sorted(glob.glob(os.path.join(self.cache, "trade", "*", "노원구.json")))[-1]
+        os.remove(victim)
+        with mock.patch.object(sys, "argv", ["f", "--gu", "노원구", "--months", "3", "--refresh-months", "0",
+                                              "--cache-dir", self.cache, "--out", self.out]), \
+             mock.patch.dict(os.environ, {"PUBLIC_DATA_API_KEY": "test"}), \
+             mock.patch.dict(sys.modules, {"requests": types.SimpleNamespace(Session=lambda: object())}), \
+             mock.patch.object(fp, "fetch_month", boom):
+            with self.assertRaises(SystemExit):
+                fp.main()
+        self.assertEqual(open(self.out, encoding="utf-8").read(), before)

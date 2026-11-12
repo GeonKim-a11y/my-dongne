@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>나의동네찾기 - 매매·전세·월세 예산 모듈</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1b2430;--mute:#667085;--line:#e3e7ee;--accent:#0f8b8d;--accent2:#0b6e70;--warn-bg:#fff4d6;--warn:#6b4e00;--bad:#c2410c}
+@media (prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1a2029;--ink:#e8ecf2;--mute:#98a2b3;--line:#2a3340;--accent:#3cc4c6;--accent2:#7fdcde;--warn-bg:#3a2f0b;--warn:#f3d98a;--bad:#fb923c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
+.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mute);margin:0 0 14px}
+.banner{border-radius:10px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;background:var(--warn-bg);color:var(--warn)}
+.banner.real{background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent2)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tabs button{flex:1;padding:8px 0;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;font-size:14.5px;cursor:pointer}
+.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+.ctrl{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:640px){.ctrl{grid-template-columns:1fr}}
+label{display:block;font-size:13.5px;margin-bottom:4px}
+label:has(span.v){display:flex;justify-content:space-between}
+.v{color:var(--accent2);font-weight:700}
+input[type=range]{width:100%;accent-color:var(--accent)}
+select{width:100%;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px}
+.chk{display:flex;gap:8px;align-items:center;font-size:13.5px;margin-top:10px}
+.sum{margin:2px 0 10px}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+th{color:var(--mute);font-weight:600;position:sticky;top:0;background:var(--card)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.empty{text-align:center;color:var(--mute);padding:20px}
+.bar{display:inline-block;width:70px;height:7px;background:var(--line);border-radius:4px;overflow:hidden;vertical-align:middle;margin-right:6px}
+.bar b{display:block;height:100%;background:var(--accent)}
+tr.out td{opacity:.45}
+.tag{font-size:11px;color:var(--bad);margin-left:4px}
+.scroll{max-height:560px;overflow:auto}
+.note{font-size:12.5px;color:var(--mute);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>나의동네찾기 <span style="font-weight:400;color:var(--mute);font-size:15px">· 예산 모듈</span></h1>
+  <p class="sub">살 집의 종류와 예산을 정하면, 서울 시범 구역에서 예산에 맞는 동네를 보여줍니다.</p>
+  <div id="banner" class="banner">데이터 불러오는 중…</div>
+
+  <div class="card">
+    <div class="tabs" id="tabs"></div>
+    <div class="ctrl">
+      <div id="sliders"></div>
+      <div>
+        <label for="band">희망 면적대 (전용면적)</label>
+        <select id="band"></select>
+      </div>
+    </div>
+    <label class="chk"><input type="checkbox" id="showOut"> 예산 초과 동네도 흐리게 표시</label>
+    <label class="chk"><input type="checkbox" id="hideLow" checked> 거래 건수가 적은 동네(표본 부족)는 제외</label>
+  </div>
+
+  <div class="card">
+    <p class="sum" id="sum"></p>
+    <div class="scroll"><table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <p class="note" id="note"></p>
+  </div>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

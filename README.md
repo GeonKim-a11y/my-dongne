@@ -6,7 +6,9 @@
 ## 구성
 ```
 config/regions.json        수집할 구 목록(active_gu). 구를 늘리려면 여기에 추가
-scripts/fetch_prices.py    매매+전월세 API 수집 -> 법정동 x 면적대 집계 -> JSON
+scripts/fetch_prices.py    매매+전월세 API 수집(월별 캐시) -> 법정동 x 면적대 집계 -> JSON
+data/cache/                월별 수집 결과 캐시 (커밋해서 보관. 다음 실행 때 재사용)
+.github/workflows/         update-data.yml: 매월 자동 수집 + 커밋
 tests/test_aggregate.py    API 키 없이 파싱·집계 검증 (python)
 tests/scoring.test.mjs     점수 계산 검증 (node)
 web/index.html             화면
@@ -25,8 +27,8 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
    ```
    pip install -r requirements.txt
    python scripts/fetch_prices.py --kind rent --gu 노원구 --months 1   # 먼저 한 구, 전월세만 시험
-   python scripts/fetch_prices.py --months 3                           # active_gu 전체, 매매+전월세
-   python scripts/fetch_prices.py --all --months 3                     # 서울 25개 구
+   python scripts/fetch_prices.py                                      # active_gu, 최근 12개월, 매매+전월세
+   python scripts/fetch_prices.py --all                                # 서울 25개 구
    ```
 4. 웹 확인
    ```
@@ -40,11 +42,26 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
    node --test tests/scoring.test.mjs
    ```
 
+## 자동 갱신 (1년치를 계속 끌어오기)
+- 수집은 **월별 캐시**를 씁니다. 처음 한 번만 12개월 x 구 x (매매, 전월세)를 받고, 이후에는 최근 3개월만 다시 받아서 호출량이 크게 줄어듭니다. 거래는 계약 후 30일 안에 신고되는 경우가 있어 최근 몇 달은 계속 바뀌기 때문입니다 (`--refresh-months`)
+- 일부 달을 못 받았는데 캐시도 없으면 **결과 파일을 갱신하지 않고** 실패로 끝냅니다. 반쯤 받은 데이터가 정상 데이터를 덮어쓰지 않게 하려는 장치입니다
+- `--include-renewal` 같은 옵션은 캐시에서 다시 계산하므로 API를 다시 호출하지 않습니다
+- `.github/workflows/update-data.yml`이 매월 6일 한국 시간 06:00에 위 명령을 실행하고 변경분을 커밋합니다. 주기를 바꾸려면 파일의 `cron` 줄만 고치면 됩니다. 커밋이 생기면 Vercel이 자동으로 재배포합니다
+
+### 자동 갱신 켜는 순서
+1. 이 프로젝트 전체(`.github` 폴더 포함)를 GitHub 저장소에 올립니다
+2. GitHub 저장소 Settings -> Secrets and variables -> Actions -> New repository secret: 이름 `PUBLIC_DATA_API_KEY`, 값은 인증키(Decoding)
+3. Vercel 프로젝트 Settings -> Git에서 이 저장소를 연결하고, General의 Root Directory를 `web`으로 지정합니다 (연결 전에는 Vercel이 자동 재배포하지 못합니다)
+4. GitHub의 Actions 탭 -> update-market-data -> Run workflow로 첫 실행. 성공하면 `web/data/market_by_dong.json`과 `data/cache/`가 커밋되고 사이트가 바뀝니다
+- 주의: 저장소가 한동안 활동이 없으면 GitHub가 예약 실행을 멈출 수 있습니다. 멈췄으면 Actions 탭에서 다시 켜거나 수동 실행하세요
+- 주의: 공공데이터포털 개발계정은 하루 호출 한도가 있습니다. 첫 실행은 6개 구 기준으로 150번 안팎, 이후 매월은 40번 안팎입니다. 한도를 넘으면 실패로 끝나니 Actions 탭에서 다음 날 수동으로 다시 실행하세요
+
 ## 계산 방식
 - 동네 x 면적대(소형 60㎡ 미만 / 중형 60~85㎡ / 중대형 85㎡ 이상)별로 **거래 중앙값**을 구합니다. 평균은 고가 단지 몇 건에 휘둘려서 쓰지 않았습니다
 - 매매: 거래금액, 전세: 보증금, 월세: 보증금과 월세를 각각 중앙값으로 집계
 - 매매 해제 거래 제외. 전월세는 기본적으로 **신규 계약만** 사용 (갱신 계약은 기존 가격이 이어져 시세보다 낮은 경우가 많음). `--include-renewal`로 포함 가능
 - 예산 점수 = 예산 대비 여유율을 0~100점으로 환산 (여유 50% 이상이면 100점, 예산 초과는 제외). 월세는 보증금과 월세 중 더 빠듯한 쪽 기준
+- 집계는 수집된 **전체 기간(기본 12개월)**의 거래를 한꺼번에 사용합니다. 표본이 안정적인 대신 최근 시세 변화에는 둔합니다. 최근 3개월 기준 통계를 따로 보여주는 방법도 있습니다
 - 거래가 3건 미만이면 `low_sample`로 표시하고 기본 화면에서는 숨깁니다 (`--min-n`으로 조절)
 
 ## 확인되지 않았거나 정해야 할 것

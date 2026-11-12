@@ -1,6 +1,7 @@
 // 화면 로직: 매매/전세/월세 탭, 예산 입력, 결과 표.
 import { loadData } from "./data.js";
 import { MODES, MODE_LABEL, rank } from "./scoring.js";
+import { initMap, updateMap } from "./map.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -97,7 +98,11 @@ function scoreCell(tr, score) {
 
 function render() {
   const mode = state.mode;
-  const { ok, over, total } = rank(DATA.dongs, mode, state.band, budgetInMan(), { hideLow: state.hideLow });
+  const res = rank(DATA.dongs, mode, state.band, budgetInMan(), { hideLow: state.hideLow });
+  const { ok, over, total } = res;
+  updateMap(res, (r) => (mode === "wolse"
+    ? `보증금 ${fmtMan(r.stat.median_deposit)} / 월세 ${r.stat.median_rent.toLocaleString()}만`
+    : `중앙값 ${fmtMan(r.stat.median)}`) + ` · 거래 ${r.stat.n}건`);
   $("sum").textContent =
     `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} 기준, 예산 안에 들어오는 동네 ${ok.length}곳 / 거래 데이터가 있는 ${total}곳`;
 
@@ -165,6 +170,7 @@ async function init() {
     const ms = DATA.months;
     b.textContent = `실거래가 (${ms[ms.length - 1]} ~ ${ms[0]} 계약분, ${ms.length}개월) · ${DATA.gu.join(", ")} · ${renewal} · 생성 ${DATA.generated_at}`;
   }
+  await initMap($("map"));
   buildTabs(); buildSliders(); buildBands();
   $("showOut").addEventListener("input", (e) => { state.showOut = e.target.checked; render(); });
   $("hideLow").addEventListener("input", (e) => { state.hideLow = e.target.checked; render(); });

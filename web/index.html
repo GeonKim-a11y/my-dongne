@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <title>나의동네찾기 - 매매·전세·월세 예산 모듈</title>
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1b2430;--mute:#667085;--line:#e3e7ee;--accent:#0f8b8d;--accent2:#0b6e70;--warn-bg:#fff4d6;--warn:#6b4e00;--bad:#c2410c}
@@ -37,6 +38,10 @@ tr.out td{opacity:.45}
 .tag{font-size:11px;color:var(--bad);margin-left:4px}
 .scroll{max-height:560px;overflow:auto}
 .note{font-size:12.5px;color:var(--mute);margin-top:8px}
+#map{height:460px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+.legend{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
+.grad{width:110px;height:10px;border-radius:5px;background:linear-gradient(90deg,#cfecec,#086b6d)}
+.sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle}
 </style>
 </head>
 <body>
@@ -59,6 +64,15 @@ tr.out td{opacity:.45}
   </div>
 
   <div class="card">
+    <div id="map">지도 불러오는 중…</div>
+    <div class="legend"><span>낮음</span><span class="grad"></span><span>높음(예산 점수)</span>
+      <span><i class="sw" style="background:#cfd4dc"></i> 예산 초과</span>
+      <span><i class="sw" style="background:#eceef2;border:1px solid #cfd4dc"></i> 데이터 없음</span>
+      <span>점선 경계 = 근사 매핑</span></div>
+    <p class="note">거래 데이터는 법정동 단위, 경계는 행정동 단위입니다. 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해집니다.</p>
+  </div>
+
+  <div class="card">
     <p class="sum" id="sum"></p>
     <div class="scroll"><table>
       <thead><tr id="head"></tr></thead>
@@ -67,6 +81,7 @@ tr.out td{opacity:.45}
     <p class="note" id="note"></p>
   </div>
 </div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script type="module" src="js/app.js"></script>
 </body>
 </html>

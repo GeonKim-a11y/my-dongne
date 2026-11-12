@@ -209,3 +209,15 @@ class TestMainEndToEnd(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 fp.main()
         self.assertEqual(open(self.out, encoding="utf-8").read(), before)
+
+
+# ---- 경계 매핑 ----
+def test_boundary_match():
+    import importlib.util, pathlib
+    spec = importlib.util.spec_from_file_location("bb", pathlib.Path(__file__).resolve().parent.parent / "scripts/build_boundary.py")
+    bb = importlib.util.module_from_spec(spec); spec.loader.exec_module(bb)
+    names = {"상계동", "성수동1가", "신림동"}
+    assert bb.match_legal("노원구", "상계10동", names) == ("상계동", "exact")
+    assert bb.match_legal("성동구", "성수1가1동", names) == ("성수동1가", "approx")
+    assert bb.match_legal("관악구", "대학동", names) == ("신림동", "approx")
+    assert bb.match_legal("마포구", "서강동", names) == (None, None)

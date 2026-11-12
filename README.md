@@ -84,4 +84,4 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 ## 지도 (GIS)
 - `web/data/dong_boundary.json`: 6개 구의 행정동 경계(122개). `python scripts/build_boundary.py <행정동 geojson>`으로 다시 만들 수 있다. 원본은 vuski/admdongkor.
 - 실거래가는 법정동, 경계는 행정동이라 이름 규칙 + 수동 표로 임시 매핑한다(근사 매핑은 지도에서 점선). 아파트 주소 지오코딩으로 바꾸면 정확해진다.
-- 지도는 Leaflet + CARTO 배경지도(키 불필요). 예산 점수가 높을수록 진한 청록.
+- 지도는 Leaflet + OpenStreetMap 배경지도(키 불필요). 예산 점수가 높을수록 진한 청록.

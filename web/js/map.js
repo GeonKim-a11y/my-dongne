@@ -30,9 +30,9 @@ export async function initMap(el, url = "data/dong_boundary.json") {
     return false;
   }
   map = L.map(el, { zoomControl: true, attributionControl: true });
-  L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-    maxZoom: 18,
-    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
   layer = L.geoJSON(boundary, { style: () => ({ weight: 1, color: "#ffffff", fillOpacity: 0.85, fillColor: GRAY_NONE }) }).addTo(map);
   map.fitBounds(layer.getBounds());

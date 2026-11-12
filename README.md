@@ -18,6 +18,10 @@ web/js/app.js              탭·슬라이더·결과 표
 web/data/                  market_by_dong.sample.json (가상), 수집 후 market_by_dong.json 생성
 ```
 
+## 배포 (Vercel)
+- Vercel 프로젝트에 이 저장소를 연결하고 **Root Directory를 `web`**으로 지정합니다
+- GitHub `main` 브랜치에 커밋이 올라오면 Vercel이 자동으로 다시 배포합니다 (월간 자동 수집 결과도 같은 방식으로 반영)
+
 ## 시작하기
 1. 공공데이터포털에서 아래 두 API를 활용신청 (승인에 시간이 걸릴 수 있으니 먼저)
    - 국토교통부_아파트 매매 실거래가 상세 자료

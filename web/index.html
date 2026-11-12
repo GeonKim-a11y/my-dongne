@@ -59,6 +59,24 @@ tr.out td{opacity:.45}
         <select id="band"></select>
       </div>
     </div>
+    <div id="medControls" hidden>
+      <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
+      <label>의료기관 종류 (점수에 반영)</label>
+      <div id="cats" style="display:flex;gap:14px;flex-wrap:wrap"></div>
+      <div class="ctrl" style="margin-top:10px">
+        <div>
+          <label><span>가중치: 예산</span><span class="v" id="wBudgetV"></span></label>
+          <input type="range" id="wBudget" min="0" max="5" step="1">
+          <label style="margin-top:8px"><span>가중치: 의료기관</span><span class="v" id="wMedV"></span></label>
+          <input type="range" id="wMed" min="0" max="5" step="1">
+        </div>
+        <div>
+          <label><span>지도에서 찍은 지점의 분석 반경</span><span class="v" id="radiusV"></span></label>
+          <input type="range" id="radius" min="300" max="3000" step="100">
+          <label class="chk"><input type="checkbox" id="showPts"> 의료기관 위치를 지도에 점으로 표시</label>
+        </div>
+      </div>
+    </div>
     <label class="chk"><input type="checkbox" id="showOut"> 예산 초과 동네도 흐리게 표시</label>
     <label class="chk"><input type="checkbox" id="hideLow" checked> 거래 건수가 적은 동네(표본 부족)는 제외</label>
   </div>
@@ -69,6 +87,7 @@ tr.out td{opacity:.45}
       <span><i class="sw" style="background:#cfd4dc"></i> 예산 초과</span>
       <span><i class="sw" style="background:#eceef2;border:1px solid #cfd4dc"></i> 데이터 없음</span>
       <span>점선 경계 = 근사 매핑</span></div>
+    <p class="note" id="probe" style="color:var(--ink);font-size:13.5px"></p>
     <p class="note">거래 데이터는 법정동 단위, 경계는 행정동 단위입니다. 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해집니다.</p>
   </div>
 

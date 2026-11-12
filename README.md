@@ -86,3 +86,9 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 - 실거래가는 법정동, 경계는 행정동이라 이름 규칙 + 수동 표로 임시 매핑한다(근사 매핑은 지도에서 점선). 아파트 주소 지오코딩으로 바꾸면 정확해진다.
 - 지도는 Leaflet + OpenStreetMap 배경지도(키 불필요). 예산 점수가 높을수록 진한 청록.
 - `web/data/seoul_outline.json`: 서울 25개 구 외곽선과 서울 밖을 가리는 마스크. 분석 대상이 아닌 구는 경계선만 나온다. `build_boundary.py`가 함께 만든다(shapely 필요, 갱신 워크플로에는 불필요).
+
+## 의료기관(병원 수) 분석
+- 수집: `python scripts/fetch_hospitals.py` -> `web/data/hospitals.json` (병원급·의원·치과·한의원 위치). 공공데이터포털의 '건강보험심사평가원_병원정보서비스' **활용신청(승인)이 별도로 필요**하다. 승인 전에는 가상 샘플(`hospitals.sample.json`)이 대신 쓰이고 화면에 경고가 뜬다.
+- 계산은 브라우저에서 한다(`web/js/gis.js`): 행정동 폴리곤 안 점 개수(point-in-polygon), 면적당 밀도(개/㎢) -> 백분위 점수, 지도에서 찍은 지점의 반경 분석(haversine).
+- 종합 점수 = (예산 점수 x 예산 가중치 + 의료 점수 x 의료 가중치) / 가중치 합. 예산을 넘는 동네는 제외된다.
+- 응답 필드명(sgguCdNm, clCd, XPos, YPos)과 엔드포인트는 문서 기준이며 실제 응답으로 한 번 확인이 필요하다.

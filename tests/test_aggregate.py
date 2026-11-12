@@ -221,3 +221,50 @@ def test_boundary_match():
     assert bb.match_legal("성동구", "성수1가1동", names) == ("성수동1가", "approx")
     assert bb.match_legal("관악구", "대학동", names) == ("신림동", "approx")
     assert bb.match_legal("마포구", "서강동", names) == (None, None)
+
+
+# ---- 의료기관 수집 ----
+def _hosp_mod():
+    import importlib.util, pathlib, sys
+    d = pathlib.Path(__file__).resolve().parent.parent / "scripts"
+    sys.path.insert(0, str(d))
+    spec = importlib.util.spec_from_file_location("fh", d / "fetch_hospitals.py")
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+
+def test_hospital_point_filters_and_case_insensitive():
+    fh = _hosp_mod()
+    ok = {"sgguCdNm": "강남구", "clCd": "31", "XPos": "127.05", "YPos": "37.5", "yadmNm": "가의원"}
+    assert fh.to_point(ok, {"강남구"}) == [127.05, 37.5, "C", "가의원"]
+    lower = {"sgguCdNm": "강남구", "clCd": "01", "xPos": "127.05", "yPos": "37.5", "yadmNm": "나병원"}
+    assert fh.to_point(lower, {"강남구"})[2] == "H"
+    assert fh.to_point(ok, {"마포구"}) is None                       # 비활성 구
+    assert fh.to_point({**ok, "clCd": "71"}, {"강남구"}) is None      # 분류에 없는 종별(보건소 등)
+    assert fh.to_point({**ok, "XPos": "0", "YPos": "0"}, {"강남구"}) is None   # 잘못된 좌표
+    assert fh.to_point({**ok, "XPos": ""}, {"강남구"}) is None
+
+
+def test_hospital_fetch_all_pages_and_error():
+    fh = _hosp_mod()
+
+    def page(items, total, code="00"):
+        body = "".join("<item>" + "".join(f"<{k}>{v}</{k}>" for k, v in it.items()) + "</item>" for it in items)
+        return f"<response><header><resultCode>{code}</resultCode></header><body><items>{body}</items><totalCount>{total}</totalCount></body></response>"
+
+    class R:
+        def __init__(self, t): self.text = t
+        def raise_for_status(self): pass
+
+    class S:
+        def __init__(self, pages): self.pages = pages; self.calls = 0
+        def get(self, url, params, timeout):
+            self.calls += 1
+            return R(self.pages[params["pageNo"] - 1])
+
+    a, b = {"yadmNm": "a"}, {"yadmNm": "b"}
+    s = S([page([a], 2), page([b], 2)])
+    assert len(fh.fetch_all(s, "k", rows=1)) == 2 and s.calls == 2
+    import pytest
+    with pytest.raises(RuntimeError):
+        fh.fetch_all(S([page([], 0, code="30")]), "k")

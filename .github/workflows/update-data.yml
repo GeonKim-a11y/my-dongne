@@ -29,11 +29,18 @@ jobs:
           PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
         run: python scripts/fetch_prices.py --months 12 --refresh-months 3
 
+      - name: 의료기관 위치 수집 (병원정보서비스 활용신청이 안 됐으면 이 단계만 실패하고 넘어감)
+        continue-on-error: true
+        env:
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+        run: python scripts/fetch_hospitals.py
+
       - name: 변경이 있으면 커밋
         run: |
           git config user.name "data-bot"
           git config user.email "data-bot@users.noreply.github.com"
           git add web/data/market_by_dong.json data/cache
+          git add web/data/hospitals.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "변경 없음"
           else

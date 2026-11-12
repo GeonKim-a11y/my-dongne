@@ -1,0 +1,5112 @@
+{
+ "generated_at": "2026-11-12T14:59:15",
+ "months": [
+  "202610",
+  "202609",
+  "202608",
+  "202607",
+  "202606",
+  "202605",
+  "202604",
+  "202603",
+  "202602",
+  "202601",
+  "202512",
+  "202511"
+ ],
+ "window_months": 12,
+ "gu": [
+  "강남구",
+  "송파구",
+  "마포구",
+  "성동구",
+  "노원구",
+  "관악구"
+ ],
+ "unit": "만원",
+ "bands": {
+  "S": "소형 (60㎡ 미만)",
+  "M": "중형 (60~85㎡)",
+  "L": "중대형 (85㎡ 이상)"
+ },
+ "source": "국토교통부 아파트 매매·전월세 실거래가",
+ "rent_new_only": true,
+ "sample": false,
+ "dongs": [
+  {
+   "gu": "강남구",
+   "dong": "개포동",
+   "trade": {
+    "M": {
+     "n": 128,
+     "median": 340000,
+     "p25": 320000,
+     "p75": 360000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 192,
+     "median": 207000,
+     "p25": 170000,
+     "p75": 273000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 76,
+     "median": 390000,
+     "p25": 305750,
+     "p75": 430250,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 267,
+     "median": 115000,
+     "p25": 60500,
+     "p75": 145000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 490,
+     "median": 65000,
+     "p25": 45000,
+     "p75": 100600,
+     "low_sample": false
+    },
+    "L": {
+     "n": 232,
+     "median": 160000,
+     "p25": 135000,
+     "p75": 185000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 482,
+     "median_deposit": 21340,
+     "median_rent": 170,
+     "low_sample": false
+    },
+    "L": {
+     "n": 266,
+     "median_deposit": 62500,
+     "median_rent": 350,
+     "low_sample": false
+    },
+    "M": {
+     "n": 328,
+     "median_deposit": 40000,
+     "median_rent": 280,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "논현동",
+   "trade": {
+    "L": {
+     "n": 48,
+     "median": 173600,
+     "p25": 147250,
+     "p75": 259250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 62,
+     "median": 211000,
+     "p25": 139250,
+     "p75": 257500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 53,
+     "median": 108000,
+     "p25": 49500,
+     "p75": 128000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 86,
+     "median": 85000,
+     "p25": 71250,
+     "p75": 90000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 44,
+     "median": 105000,
+     "p25": 75000,
+     "p75": 150000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 111,
+     "median": 63000,
+     "p25": 45000,
+     "p75": 65000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 255,
+     "median_deposit": 5542,
+     "median_rent": 100,
+     "low_sample": false
+    },
+    "L": {
+     "n": 37,
+     "median_deposit": 30000,
+     "median_rent": 290,
+     "low_sample": false
+    },
+    "M": {
+     "n": 108,
+     "median_deposit": 10000,
+     "median_rent": 295,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "대치동",
+   "trade": {
+    "M": {
+     "n": 138,
+     "median": 345000,
+     "p25": 313250,
+     "p75": 377000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 131,
+     "median": 470000,
+     "p25": 396000,
+     "p75": 530000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 54,
+     "median": 44400,
+     "p25": 29250,
+     "p75": 248750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 261,
+     "median": 160000,
+     "p25": 133000,
+     "p75": 200000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 348,
+     "median": 83000,
+     "p25": 71950,
+     "p75": 108000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 101,
+     "median": 71000,
+     "p25": 31000,
+     "p75": 110000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 384,
+     "median_deposit": 40000,
+     "median_rent": 178,
+     "low_sample": false
+    },
+    "S": {
+     "n": 236,
+     "median_deposit": 3000,
+     "median_rent": 120,
+     "low_sample": false
+    },
+    "L": {
+     "n": 234,
+     "median_deposit": 90000,
+     "median_rent": 260,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "도곡동",
+   "trade": {
+    "M": {
+     "n": 78,
+     "median": 260000,
+     "p25": 228000,
+     "p75": 346500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 73,
+     "median": 245000,
+     "p25": 40000,
+     "p75": 289000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 133,
+     "median": 327000,
+     "p25": 275000,
+     "p75": 434000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 181,
+     "median": 100000,
+     "p25": 85000,
+     "p75": 140000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 176,
+     "median": 179250,
+     "p25": 133750,
+     "p75": 221250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 119,
+     "median": 70000,
+     "p25": 36200,
+     "p75": 99850,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 183,
+     "median_deposit": 50000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "S": {
+     "n": 240,
+     "median_deposit": 10000,
+     "median_rent": 120,
+     "low_sample": false
+    },
+    "L": {
+     "n": 181,
+     "median_deposit": 70000,
+     "median_rent": 320,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "삼성동",
+   "trade": {
+    "M": {
+     "n": 85,
+     "median": 315000,
+     "p25": 230000,
+     "p75": 349000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 66,
+     "median": 377750,
+     "p25": 281000,
+     "p75": 457250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 76,
+     "median": 176000,
+     "p25": 106500,
+     "p75": 214250,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 114,
+     "median": 69500,
+     "p25": 50000,
+     "p75": 79750,
+     "low_sample": false
+    },
+    "M": {
+     "n": 152,
+     "median": 118500,
+     "p25": 90000,
+     "p75": 132500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 107,
+     "median": 135000,
+     "p25": 101000,
+     "p75": 191000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 238,
+     "median_deposit": 9050,
+     "median_rent": 140,
+     "low_sample": false
+    },
+    "M": {
+     "n": 211,
+     "median_deposit": 30000,
+     "median_rent": 347,
+     "low_sample": false
+    },
+    "L": {
+     "n": 145,
+     "median_deposit": 50000,
+     "median_rent": 400,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "세곡동",
+   "trade": {
+    "M": {
+     "n": 34,
+     "median": 188000,
+     "p25": 176250,
+     "p75": 192000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 19,
+     "median": 169000,
+     "p25": 159000,
+     "p75": 173250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 6,
+     "median": 181250,
+     "p25": 179000,
+     "p75": 184700,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 12,
+     "median": 70685,
+     "p25": 67520,
+     "p75": 87500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 34,
+     "median": 70000,
+     "p25": 68000,
+     "p75": 73000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 64,
+     "median": 80000,
+     "p25": 74500,
+     "p75": 85000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 92,
+     "median_deposit": 5000,
+     "median_rent": 40,
+     "low_sample": false
+    },
+    "M": {
+     "n": 47,
+     "median_deposit": 30000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 1,
+     "median_deposit": 25000,
+     "median_rent": 80,
+     "low_sample": true
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "수서동",
+   "trade": {
+    "M": {
+     "n": 27,
+     "median": 245000,
+     "p25": 231000,
+     "p75": 250000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 130,
+     "median": 155000,
+     "p25": 149000,
+     "p75": 184625,
+     "low_sample": false
+    },
+    "L": {
+     "n": 15,
+     "median": 290000,
+     "p25": 267500,
+     "p75": 342500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 70,
+     "median": 75090,
+     "p25": 70000,
+     "p75": 98000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 30,
+     "median": 100000,
+     "p25": 90000,
+     "p75": 140000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 235,
+     "median": 45000,
+     "p25": 39950,
+     "p75": 52850,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 194,
+     "median_deposit": 15000,
+     "median_rent": 114,
+     "low_sample": false
+    },
+    "M": {
+     "n": 55,
+     "median_deposit": 40000,
+     "median_rent": 160,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median_deposit": 67500,
+     "median_rent": 245,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "신사동",
+   "trade": {
+    "S": {
+     "n": 13,
+     "median": 136000,
+     "p25": 123000,
+     "p75": 166000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 6,
+     "median": 93500,
+     "p25": 90750,
+     "p75": 133750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median": 205000,
+     "p25": 191000,
+     "p75": 636500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 16,
+     "median": 99000,
+     "p25": 65000,
+     "p75": 122500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 9,
+     "median": 60000,
+     "p25": 53000,
+     "p75": 65000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 112500,
+     "p25": 92500,
+     "p75": 123750,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 26,
+     "median_deposit": 5000,
+     "median_rent": 190,
+     "low_sample": false
+    },
+    "M": {
+     "n": 18,
+     "median_deposit": 17500,
+     "median_rent": 245,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median_deposit": 40000,
+     "median_rent": 290,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "압구정동",
+   "trade": {
+    "M": {
+     "n": 27,
+     "median": 510000,
+     "p25": 480000,
+     "p75": 585000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 134,
+     "median": 705000,
+     "p25": 592500,
+     "p75": 850000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 6,
+     "median": 406750,
+     "p25": 393750,
+     "p75": 413375,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 203,
+     "median": 110000,
+     "p25": 90000,
+     "p75": 160000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 106,
+     "median": 76500,
+     "p25": 69250,
+     "p75": 90000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 13,
+     "median": 52000,
+     "p25": 48000,
+     "p75": 57000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 75,
+     "median_deposit": 20000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "L": {
+     "n": 143,
+     "median_deposit": 30000,
+     "median_rent": 300,
+     "low_sample": false
+    },
+    "S": {
+     "n": 5,
+     "median_deposit": 5000,
+     "median_rent": 200,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "역삼동",
+   "trade": {
+    "S": {
+     "n": 188,
+     "median": 78000,
+     "p25": 41200,
+     "p75": 265250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 53,
+     "median": 330000,
+     "p25": 235000,
+     "p75": 375000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 63,
+     "median": 188000,
+     "p25": 152500,
+     "p75": 299000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 147,
+     "median": 125000,
+     "p25": 85500,
+     "p75": 140000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 79,
+     "median": 157000,
+     "p25": 107500,
+     "p75": 174000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 277,
+     "median": 55000,
+     "p25": 31000,
+     "p75": 100000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 576,
+     "median_deposit": 5000,
+     "median_rent": 140,
+     "low_sample": false
+    },
+    "L": {
+     "n": 99,
+     "median_deposit": 50000,
+     "median_rent": 330,
+     "low_sample": false
+    },
+    "M": {
+     "n": 192,
+     "median_deposit": 30000,
+     "median_rent": 308,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "율현동",
+   "trade": {
+    "M": {
+     "n": 3,
+     "median": 164000,
+     "p25": 155000,
+     "p75": 180000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 1,
+     "median": 160000,
+     "p25": 160000,
+     "p75": 160000,
+     "low_sample": true
+    },
+    "S": {
+     "n": 3,
+     "median": 132000,
+     "p25": 127000,
+     "p75": 142000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 9,
+     "median": 60900,
+     "p25": 47892,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median": 79250,
+     "p25": 76500,
+     "p75": 82000,
+     "low_sample": true
+    },
+    "L": {
+     "n": 4,
+     "median": 89500,
+     "p25": 81750,
+     "p75": 96250,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 7,
+     "median_deposit": 8493,
+     "median_rent": 37,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median_deposit": 15000,
+     "median_rent": 280,
+     "low_sample": true
+    },
+    "L": {
+     "n": 3,
+     "median_deposit": 50000,
+     "median_rent": 160,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "일원동",
+   "trade": {
+    "M": {
+     "n": 61,
+     "median": 274000,
+     "p25": 249000,
+     "p75": 304000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 29,
+     "median": 315000,
+     "p25": 300000,
+     "p75": 340000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 49,
+     "median": 190500,
+     "p25": 153000,
+     "p75": 220000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 160,
+     "median": 90000,
+     "p25": 81975,
+     "p75": 138000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 58,
+     "median": 148500,
+     "p25": 122750,
+     "p75": 168750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 76,
+     "median": 56360,
+     "p25": 45750,
+     "p75": 72019,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 144,
+     "median_deposit": 50000,
+     "median_rent": 170,
+     "low_sample": false
+    },
+    "L": {
+     "n": 54,
+     "median_deposit": 80000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "S": {
+     "n": 453,
+     "median_deposit": 21060,
+     "median_rent": 60,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "자곡동",
+   "trade": {
+    "M": {
+     "n": 50,
+     "median": 166000,
+     "p25": 130000,
+     "p75": 215000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 39,
+     "median": 140000,
+     "p25": 126000,
+     "p75": 154500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 40,
+     "median": 225000,
+     "p25": 211000,
+     "p75": 234875,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 84,
+     "median": 76500,
+     "p25": 65598,
+     "p75": 85000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 64,
+     "median": 51402,
+     "p25": 45834,
+     "p75": 59250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 34,
+     "median": 110000,
+     "p25": 100500,
+     "p75": 114500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 36,
+     "median_deposit": 35000,
+     "median_rent": 280,
+     "low_sample": false
+    },
+    "M": {
+     "n": 51,
+     "median_deposit": 40000,
+     "median_rent": 165,
+     "low_sample": false
+    },
+    "S": {
+     "n": 169,
+     "median_deposit": 6406,
+     "median_rent": 43,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "강남구",
+   "dong": "청담동",
+   "trade": {
+    "S": {
+     "n": 35,
+     "median": 208000,
+     "p25": 104500,
+     "p75": 251000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 78,
+     "median": 327000,
+     "p25": 268500,
+     "p75": 440000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 31,
+     "median": 255000,
+     "p25": 226750,
+     "p75": 301500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 127,
+     "median": 148000,
+     "p25": 117500,
+     "p75": 250000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 115,
+     "median": 77298,
+     "p25": 52500,
+     "p75": 120000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 91,
+     "median": 138000,
+     "p25": 85000,
+     "p75": 175000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 171,
+     "median_deposit": 10000,
+     "median_rent": 250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 91,
+     "median_deposit": 50000,
+     "median_rent": 360,
+     "low_sample": false
+    },
+    "L": {
+     "n": 158,
+     "median_deposit": 50000,
+     "median_rent": 562,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "관악구",
+   "dong": "남현동",
+   "trade": {
+    "S": {
+     "n": 11,
+     "median": 51800,
+     "p25": 45000,
+     "p75": 58000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 51,
+     "median": 85000,
+     "p25": 76000,
+     "p75": 93850,
+     "low_sample": false
+    },
+    "L": {
+     "n": 20,
+     "median": 83000,
+     "p25": 66750,
+     "p75": 98450,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 20,
+     "median": 60750,
+     "p25": 54500,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 8,
+     "median": 39500,
+     "p25": 34200,
+     "p75": 41500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median": 65000,
+     "p25": 63000,
+     "p75": 72000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 5,
+     "median_deposit": 50000,
+     "median_rent": 80,
+     "low_sample": false
+    },
+    "S": {
+     "n": 22,
+     "median_deposit": 5000,
+     "median_rent": 68,
+     "low_sample": false
+    },
+    "M": {
+     "n": 15,
+     "median_deposit": 30000,
+     "median_rent": 130,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "관악구",
+   "dong": "봉천동",
+   "trade": {
+    "M": {
+     "n": 507,
+     "median": 110500,
+     "p25": 93000,
+     "p75": 122000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 594,
+     "median": 93000,
+     "p25": 60000,
+     "p75": 109000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 204,
+     "median": 117000,
+     "p25": 107438,
+     "p75": 129500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 365,
+     "median": 60000,
+     "p25": 55000,
+     "p75": 68000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 407,
+     "median": 49000,
+     "p25": 42000,
+     "p75": 54000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 123,
+     "median": 70000,
+     "p25": 63500,
+     "p75": 75000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 219,
+     "median_deposit": 20100,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "S": {
+     "n": 1025,
+     "median_deposit": 5000,
+     "median_rent": 79,
+     "low_sample": false
+    },
+    "L": {
+     "n": 85,
+     "median_deposit": 28000,
+     "median_rent": 140,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "관악구",
+   "dong": "신림동",
+   "trade": {
+    "M": {
+     "n": 396,
+     "median": 71000,
+     "p25": 61650,
+     "p75": 78350,
+     "low_sample": false
+    },
+    "S": {
+     "n": 382,
+     "median": 55000,
+     "p25": 44500,
+     "p75": 64000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 115,
+     "median": 85000,
+     "p25": 76500,
+     "p75": 90750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 206,
+     "median": 44000,
+     "p25": 39500,
+     "p75": 50750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 294,
+     "median": 38000,
+     "p25": 28000,
+     "p75": 55000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 76,
+     "median": 53500,
+     "p25": 48500,
+     "p75": 59000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 797,
+     "median_deposit": 5000,
+     "median_rent": 61,
+     "low_sample": false
+    },
+    "M": {
+     "n": 142,
+     "median_deposit": 13000,
+     "median_rent": 110,
+     "low_sample": false
+    },
+    "L": {
+     "n": 26,
+     "median_deposit": 25000,
+     "median_rent": 110,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "노원구",
+   "dong": "공릉동",
+   "trade": {
+    "M": {
+     "n": 369,
+     "median": 76000,
+     "p25": 67800,
+     "p75": 85500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 614,
+     "median": 54500,
+     "p25": 45000,
+     "p75": 63650,
+     "low_sample": false
+    },
+    "L": {
+     "n": 69,
+     "median": 87000,
+     "p25": 79800,
+     "p75": 95000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 290,
+     "median": 33000,
+     "p25": 26062,
+     "p75": 38000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 36,
+     "median": 60000,
+     "p25": 54875,
+     "p75": 63000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 161,
+     "median": 47000,
+     "p25": 40000,
+     "p75": 55000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 519,
+     "median_deposit": 3000,
+     "median_rent": 60,
+     "low_sample": false
+    },
+    "L": {
+     "n": 14,
+     "median_deposit": 20000,
+     "median_rent": 175,
+     "low_sample": false
+    },
+    "M": {
+     "n": 111,
+     "median_deposit": 20000,
+     "median_rent": 100,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "노원구",
+   "dong": "상계동",
+   "trade": {
+    "S": {
+     "n": 2268,
+     "median": 53500,
+     "p25": 44500,
+     "p75": 61725,
+     "low_sample": false
+    },
+    "L": {
+     "n": 107,
+     "median": 83000,
+     "p25": 75000,
+     "p75": 91500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 732,
+     "median": 69250,
+     "p25": 61375,
+     "p75": 82000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 1734,
+     "median": 25000,
+     "p25": 20000,
+     "p75": 31000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 403,
+     "median": 40000,
+     "p25": 35000,
+     "p75": 50000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 79,
+     "median": 55000,
+     "p25": 45000,
+     "p75": 65000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 1911,
+     "median_deposit": 3000,
+     "median_rent": 75,
+     "low_sample": false
+    },
+    "M": {
+     "n": 215,
+     "median_deposit": 10000,
+     "median_rent": 120,
+     "low_sample": false
+    },
+    "L": {
+     "n": 43,
+     "median_deposit": 20000,
+     "median_rent": 120,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "노원구",
+   "dong": "월계동",
+   "trade": {
+    "S": {
+     "n": 729,
+     "median": 59900,
+     "p25": 37000,
+     "p75": 90000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 322,
+     "median": 89250,
+     "p25": 74000,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 114,
+     "median": 98500,
+     "p25": 88500,
+     "p75": 108000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 529,
+     "median": 28000,
+     "p25": 22000,
+     "p75": 34000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 39,
+     "median": 64000,
+     "p25": 58000,
+     "p75": 68000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 153,
+     "median": 53000,
+     "p25": 46000,
+     "p75": 63000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 597,
+     "median_deposit": 3000,
+     "median_rent": 70,
+     "low_sample": false
+    },
+    "M": {
+     "n": 107,
+     "median_deposit": 10000,
+     "median_rent": 135,
+     "low_sample": false
+    },
+    "L": {
+     "n": 35,
+     "median_deposit": 5000,
+     "median_rent": 90,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "노원구",
+   "dong": "중계동",
+   "trade": {
+    "S": {
+     "n": 838,
+     "median": 54700,
+     "p25": 45000,
+     "p75": 64000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 433,
+     "median": 83500,
+     "p25": 70000,
+     "p75": 102000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 168,
+     "median": 127000,
+     "p25": 112000,
+     "p75": 135000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 261,
+     "median": 59000,
+     "p25": 50000,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 590,
+     "median": 29000,
+     "p25": 23112,
+     "p75": 35000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 100,
+     "median": 82500,
+     "p25": 75000,
+     "p75": 89000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 151,
+     "median_deposit": 25000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "S": {
+     "n": 669,
+     "median_deposit": 2000,
+     "median_rent": 90,
+     "low_sample": false
+    },
+    "L": {
+     "n": 62,
+     "median_deposit": 40000,
+     "median_rent": 160,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "노원구",
+   "dong": "하계동",
+   "trade": {
+    "S": {
+     "n": 379,
+     "median": 57000,
+     "p25": 46900,
+     "p75": 64775,
+     "low_sample": false
+    },
+    "M": {
+     "n": 251,
+     "median": 87800,
+     "p25": 80000,
+     "p75": 94350,
+     "low_sample": false
+    },
+    "L": {
+     "n": 64,
+     "median": 98750,
+     "p25": 91925,
+     "p75": 108625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 251,
+     "median": 27500,
+     "p25": 22750,
+     "p75": 33000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 152,
+     "median": 50000,
+     "p25": 45000,
+     "p75": 56000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 35,
+     "median": 65000,
+     "p25": 60000,
+     "p75": 73000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 284,
+     "median_deposit": 2000,
+     "median_rent": 80,
+     "low_sample": false
+    },
+    "M": {
+     "n": 83,
+     "median_deposit": 20000,
+     "median_rent": 135,
+     "low_sample": false
+    },
+    "L": {
+     "n": 15,
+     "median_deposit": 40000,
+     "median_rent": 140,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "공덕동",
+   "trade": {
+    "S": {
+     "n": 56,
+     "median": 179750,
+     "p25": 152750,
+     "p75": 195000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median": 249000,
+     "p25": 222500,
+     "p75": 259500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 45,
+     "median": 198000,
+     "p25": 180000,
+     "p75": 225000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 103,
+     "median": 85000,
+     "p25": 75000,
+     "p75": 115250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 124,
+     "median": 70000,
+     "p25": 58688,
+     "p75": 75250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 25,
+     "median": 110000,
+     "p25": 95000,
+     "p75": 120000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 85,
+     "median_deposit": 15000,
+     "median_rent": 160,
+     "low_sample": false
+    },
+    "L": {
+     "n": 22,
+     "median_deposit": 35000,
+     "median_rent": 245,
+     "low_sample": false
+    },
+    "M": {
+     "n": 93,
+     "median_deposit": 40000,
+     "median_rent": 190,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "구수동",
+   "trade": {
+    "M": {
+     "n": 1,
+     "median": 120000,
+     "p25": 120000,
+     "p75": 120000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {},
+   "wolse": {}
+  },
+  {
+   "gu": "마포구",
+   "dong": "노고산동",
+   "trade": {
+    "S": {
+     "n": 21,
+     "median": 27000,
+     "p25": 25300,
+     "p75": 29000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 36,
+     "median": 49000,
+     "p25": 24375,
+     "p75": 55000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 231,
+     "median_deposit": 1000,
+     "median_rent": 110,
+     "low_sample": false
+    },
+    "M": {
+     "n": 1,
+     "median_deposit": 500,
+     "median_rent": 145,
+     "low_sample": true
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "대흥동",
+   "trade": {
+    "M": {
+     "n": 30,
+     "median": 212000,
+     "p25": 204250,
+     "p75": 222250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 35,
+     "median": 171000,
+     "p25": 164000,
+     "p75": 207500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 230000,
+     "p25": 225750,
+     "p75": 252250,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 67,
+     "median": 85000,
+     "p25": 70000,
+     "p75": 89500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 83,
+     "median": 100000,
+     "p25": 80500,
+     "p75": 115000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 17,
+     "median": 109000,
+     "p25": 108000,
+     "p75": 117000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 105,
+     "median_deposit": 3000,
+     "median_rent": 93,
+     "low_sample": false
+    },
+    "M": {
+     "n": 79,
+     "median_deposit": 30000,
+     "median_rent": 190,
+     "low_sample": false
+    },
+    "L": {
+     "n": 16,
+     "median_deposit": 70000,
+     "median_rent": 170,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "도화동",
+   "trade": {
+    "M": {
+     "n": 92,
+     "median": 159500,
+     "p25": 125750,
+     "p75": 171000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 71,
+     "median": 60000,
+     "p25": 56900,
+     "p75": 132000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 46,
+     "median": 180000,
+     "p25": 148125,
+     "p75": 194875,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 130,
+     "median": 65000,
+     "p25": 55000,
+     "p75": 73000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 48,
+     "median": 52000,
+     "p25": 42440,
+     "p75": 57000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 38,
+     "median": 80000,
+     "p25": 72000,
+     "p75": 85000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 41,
+     "median_deposit": 25000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "M": {
+     "n": 95,
+     "median_deposit": 20000,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "S": {
+     "n": 100,
+     "median_deposit": 5000,
+     "median_rent": 140,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "동교동",
+   "trade": {
+    "L": {
+     "n": 1,
+     "median": 130000,
+     "p25": 130000,
+     "p75": 130000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 2,
+     "median": 58000,
+     "p25": 53000,
+     "p75": 63000,
+     "low_sample": true
+    },
+    "L": {
+     "n": 1,
+     "median": 75000,
+     "p25": 75000,
+     "p75": 75000,
+     "low_sample": true
+    }
+   },
+   "wolse": {}
+  },
+  {
+   "gu": "마포구",
+   "dong": "마포동",
+   "trade": {
+    "S": {
+     "n": 8,
+     "median": 137500,
+     "p25": 116000,
+     "p75": 144250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median": 174000,
+     "p25": 169750,
+     "p75": 178000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 1,
+     "median": 138000,
+     "p25": 138000,
+     "p75": 138000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 18,
+     "median": 50000,
+     "p25": 48250,
+     "p75": 55000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 6,
+     "median": 46000,
+     "p25": 40050,
+     "p75": 51500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median": 76000,
+     "p25": 70000,
+     "p75": 90000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 25,
+     "median_deposit": 5000,
+     "median_rent": 57,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median_deposit": 12500,
+     "median_rent": 190,
+     "low_sample": true
+    },
+    "L": {
+     "n": 1,
+     "median_deposit": 10000,
+     "median_rent": 250,
+     "low_sample": true
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "망원동",
+   "trade": {
+    "S": {
+     "n": 83,
+     "median": 71300,
+     "p25": 61100,
+     "p75": 87000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 73,
+     "median": 89000,
+     "p25": 79800,
+     "p75": 113500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 22,
+     "median": 121250,
+     "p25": 95000,
+     "p75": 185625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 60,
+     "median": 50000,
+     "p25": 40000,
+     "p75": 60500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 13,
+     "median": 75000,
+     "p25": 65000,
+     "p75": 80000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 47,
+     "median": 63000,
+     "p25": 54500,
+     "p75": 77500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 36,
+     "median_deposit": 20000,
+     "median_rent": 155,
+     "low_sample": false
+    },
+    "S": {
+     "n": 54,
+     "median_deposit": 10500,
+     "median_rent": 110,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median_deposit": 25000,
+     "median_rent": 220,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "상수동",
+   "trade": {
+    "L": {
+     "n": 5,
+     "median": 235000,
+     "p25": 225000,
+     "p75": 244000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 19,
+     "median": 206500,
+     "p25": 172500,
+     "p75": 216000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 5,
+     "median": 130000,
+     "p25": 125000,
+     "p75": 160000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 38,
+     "median": 95000,
+     "p25": 90000,
+     "p75": 100000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 2,
+     "median": 79125,
+     "p25": 78750,
+     "p75": 79500,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 25,
+     "median_deposit": 6100,
+     "median_rent": 59,
+     "low_sample": false
+    },
+    "M": {
+     "n": 27,
+     "median_deposit": 30000,
+     "median_rent": 250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 9,
+     "median_deposit": 20000,
+     "median_rent": 450,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "상암동",
+   "trade": {
+    "M": {
+     "n": 123,
+     "median": 130000,
+     "p25": 114250,
+     "p75": 144500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 42,
+     "median": 114250,
+     "p25": 94750,
+     "p75": 123875,
+     "low_sample": false
+    },
+    "L": {
+     "n": 33,
+     "median": 150000,
+     "p25": 141500,
+     "p75": 159500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 76,
+     "median": 53000,
+     "p25": 44000,
+     "p75": 57000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 40,
+     "median": 79700,
+     "p25": 54960,
+     "p75": 85000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 131,
+     "median": 68000,
+     "p25": 61450,
+     "p75": 72200,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 152,
+     "median_deposit": 5000,
+     "median_rent": 303,
+     "low_sample": false
+    },
+    "S": {
+     "n": 230,
+     "median_deposit": 4740,
+     "median_rent": 36,
+     "low_sample": false
+    },
+    "L": {
+     "n": 22,
+     "median_deposit": 7500,
+     "median_rent": 345,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "서교동",
+   "trade": {
+    "S": {
+     "n": 16,
+     "median": 31000,
+     "p25": 30000,
+     "p75": 55875,
+     "low_sample": false
+    },
+    "L": {
+     "n": 26,
+     "median": 236000,
+     "p25": 121625,
+     "p75": 261250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 9,
+     "median": 68500,
+     "p25": 68000,
+     "p75": 80500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 34,
+     "median": 175000,
+     "p25": 102250,
+     "p75": 185000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 9,
+     "median": 27000,
+     "p25": 26000,
+     "p75": 27000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 5,
+     "median": 57000,
+     "p25": 55000,
+     "p75": 60000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 200,
+     "median_deposit": 9170,
+     "median_rent": 75,
+     "low_sample": false
+    },
+    "L": {
+     "n": 29,
+     "median_deposit": 20000,
+     "median_rent": 600,
+     "low_sample": false
+    },
+    "M": {
+     "n": 14,
+     "median_deposit": 7500,
+     "median_rent": 220,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "성산동",
+   "trade": {
+    "S": {
+     "n": 67,
+     "median": 120000,
+     "p25": 82000,
+     "p75": 147000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 55,
+     "median": 109000,
+     "p25": 82600,
+     "p75": 123250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 131500,
+     "p25": 125125,
+     "p75": 143500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 376,
+     "median": 33000,
+     "p25": 30000,
+     "p75": 36000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 22,
+     "median": 59000,
+     "p25": 45350,
+     "p75": 65000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median": 60000,
+     "p25": 57000,
+     "p75": 72000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 292,
+     "median_deposit": 5000,
+     "median_rent": 90,
+     "low_sample": false
+    },
+    "M": {
+     "n": 21,
+     "median_deposit": 30000,
+     "median_rent": 120,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "신공덕동",
+   "trade": {
+    "S": {
+     "n": 40,
+     "median": 149750,
+     "p25": 40500,
+     "p75": 170750,
+     "low_sample": false
+    },
+    "M": {
+     "n": 18,
+     "median": 198250,
+     "p25": 172750,
+     "p75": 201500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 13,
+     "median": 212000,
+     "p25": 193000,
+     "p75": 227000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 82,
+     "median": 68000,
+     "p25": 62250,
+     "p75": 70075,
+     "low_sample": false
+    },
+    "L": {
+     "n": 42,
+     "median": 120000,
+     "p25": 96250,
+     "p75": 135000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 38,
+     "median": 82000,
+     "p25": 75250,
+     "p75": 96500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 144,
+     "median_deposit": 10000,
+     "median_rent": 112,
+     "low_sample": false
+    },
+    "M": {
+     "n": 39,
+     "median_deposit": 30000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 41,
+     "median_deposit": 20000,
+     "median_rent": 450,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "신수동",
+   "trade": {
+    "S": {
+     "n": 26,
+     "median": 133000,
+     "p25": 123000,
+     "p75": 163750,
+     "low_sample": false
+    },
+    "M": {
+     "n": 61,
+     "median": 169000,
+     "p25": 152500,
+     "p75": 236000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 192000,
+     "p25": 169250,
+     "p75": 254500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 119,
+     "median": 80000,
+     "p25": 72000,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 40,
+     "median": 75000,
+     "p25": 49500,
+     "p75": 87000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 102500,
+     "p25": 80000,
+     "p75": 135000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 58,
+     "median_deposit": 25000,
+     "median_rent": 155,
+     "low_sample": false
+    },
+    "S": {
+     "n": 45,
+     "median_deposit": 20000,
+     "median_rent": 85,
+     "low_sample": false
+    },
+    "L": {
+     "n": 14,
+     "median_deposit": 17500,
+     "median_rent": 490,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "신정동",
+   "trade": {
+    "S": {
+     "n": 6,
+     "median": 146900,
+     "p25": 143200,
+     "p75": 154350,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median": 170000,
+     "p25": 160000,
+     "p75": 225000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 1,
+     "median": 165000,
+     "p25": 165000,
+     "p75": 165000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 23,
+     "median": 60000,
+     "p25": 56500,
+     "p75": 64000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 5,
+     "median": 75000,
+     "p25": 70000,
+     "p75": 75000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 1,
+     "median": 130000,
+     "p25": 130000,
+     "p75": 130000,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 13,
+     "median_deposit": 20000,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median_deposit": 37500,
+     "median_rent": 150,
+     "low_sample": true
+    },
+    "L": {
+     "n": 1,
+     "median_deposit": 5000,
+     "median_rent": 450,
+     "low_sample": true
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "아현동",
+   "trade": {
+    "S": {
+     "n": 92,
+     "median": 203250,
+     "p25": 94875,
+     "p75": 212625,
+     "low_sample": false
+    },
+    "M": {
+     "n": 52,
+     "median": 241500,
+     "p25": 213750,
+     "p75": 250000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 12,
+     "median": 257500,
+     "p25": 215500,
+     "p75": 266375,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 252,
+     "median": 80000,
+     "p25": 72975,
+     "p75": 85000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 143,
+     "median": 100000,
+     "p25": 93650,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 22,
+     "median": 130000,
+     "p25": 125750,
+     "p75": 130000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 279,
+     "median_deposit": 15000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "M": {
+     "n": 110,
+     "median_deposit": 40000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 31,
+     "median_deposit": 40000,
+     "median_rent": 330,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "연남동",
+   "trade": {
+    "M": {
+     "n": 16,
+     "median": 108500,
+     "p25": 80225,
+     "p75": 125500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median": 134000,
+     "p25": 128500,
+     "p75": 136250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 13,
+     "median": 93000,
+     "p25": 53000,
+     "p75": 107000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 12,
+     "median": 68000,
+     "p25": 58900,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 7,
+     "median": 45000,
+     "p25": 43650,
+     "p75": 45500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median": 73000,
+     "p25": 73000,
+     "p75": 73000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 13,
+     "median_deposit": 8000,
+     "median_rent": 230,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median_deposit": 10000,
+     "median_rent": 260,
+     "low_sample": false
+    },
+    "S": {
+     "n": 18,
+     "median_deposit": 12000,
+     "median_rent": 115,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "염리동",
+   "trade": {
+    "M": {
+     "n": 37,
+     "median": 235000,
+     "p25": 191000,
+     "p75": 248000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 43,
+     "median": 155000,
+     "p25": 126750,
+     "p75": 194500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median": 278500,
+     "p25": 225000,
+     "p75": 285000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 79,
+     "median": 110000,
+     "p25": 99875,
+     "p75": 120000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 86,
+     "median": 80000,
+     "p25": 52000,
+     "p75": 93000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 171500,
+     "p25": 129750,
+     "p75": 183750,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 329,
+     "median_deposit": 11900,
+     "median_rent": 63,
+     "low_sample": false
+    },
+    "M": {
+     "n": 58,
+     "median_deposit": 50000,
+     "median_rent": 240,
+     "low_sample": false
+    },
+    "L": {
+     "n": 15,
+     "median_deposit": 60000,
+     "median_rent": 252,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "용강동",
+   "trade": {
+    "M": {
+     "n": 11,
+     "median": 272000,
+     "p25": 240500,
+     "p75": 284000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 8,
+     "median": 186000,
+     "p25": 176500,
+     "p75": 225000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median": 244250,
+     "p25": 237500,
+     "p75": 249625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 21,
+     "median": 80000,
+     "p25": 65000,
+     "p75": 95000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 27,
+     "median": 120000,
+     "p25": 107500,
+     "p75": 125000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median": 123000,
+     "p25": 115000,
+     "p75": 142500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 27,
+     "median_deposit": 70000,
+     "median_rent": 160,
+     "low_sample": false
+    },
+    "S": {
+     "n": 32,
+     "median_deposit": 20000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median_deposit": 65000,
+     "median_rent": 250,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "중동",
+   "trade": {
+    "M": {
+     "n": 57,
+     "median": 111500,
+     "p25": 98000,
+     "p75": 124500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 20,
+     "median": 94000,
+     "p25": 76800,
+     "p75": 103375,
+     "low_sample": false
+    },
+    "L": {
+     "n": 12,
+     "median": 105000,
+     "p25": 100025,
+     "p75": 120500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 13,
+     "median": 45000,
+     "p25": 43500,
+     "p75": 48000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 28,
+     "median": 64500,
+     "p25": 59750,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median": 69000,
+     "p25": 68000,
+     "p75": 70000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 19,
+     "median_deposit": 30000,
+     "median_rent": 100,
+     "low_sample": false
+    },
+    "S": {
+     "n": 7,
+     "median_deposit": 17000,
+     "median_rent": 130,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median_deposit": 20000,
+     "median_rent": 170,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "창전동",
+   "trade": {
+    "M": {
+     "n": 62,
+     "median": 157500,
+     "p25": 143250,
+     "p75": 185000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 28,
+     "median": 138500,
+     "p25": 58875,
+     "p75": 165250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median": 156250,
+     "p25": 140000,
+     "p75": 165625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 67,
+     "median": 75000,
+     "p25": 70000,
+     "p75": 82500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 100000,
+     "p25": 92500,
+     "p75": 110000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 37,
+     "median": 60000,
+     "p25": 57330,
+     "p75": 69000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 52,
+     "median_deposit": 30000,
+     "median_rent": 190,
+     "low_sample": false
+    },
+    "S": {
+     "n": 98,
+     "median_deposit": 5337,
+     "median_rent": 28,
+     "low_sample": false
+    },
+    "L": {
+     "n": 2,
+     "median_deposit": 35000,
+     "median_rent": 215,
+     "low_sample": true
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "토정동",
+   "trade": {
+    "S": {
+     "n": 6,
+     "median": 176500,
+     "p25": 170875,
+     "p75": 179500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median": 219250,
+     "p25": 218000,
+     "p75": 220500,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 28,
+     "median": 64000,
+     "p25": 57619,
+     "p75": 65250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 9,
+     "median": 77000,
+     "p25": 75000,
+     "p75": 80000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 5,
+     "median_deposit": 35000,
+     "median_rent": 160,
+     "low_sample": false
+    },
+    "S": {
+     "n": 8,
+     "median_deposit": 12500,
+     "median_rent": 195,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "하중동",
+   "trade": {
+    "L": {
+     "n": 7,
+     "median": 265000,
+     "p25": 245250,
+     "p75": 312500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 1,
+     "median": 233000,
+     "p25": 233000,
+     "p75": 233000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 14,
+     "median": 158500,
+     "p25": 148750,
+     "p75": 173750,
+     "low_sample": false
+    },
+    "M": {
+     "n": 5,
+     "median": 100000,
+     "p25": 95000,
+     "p75": 100000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 12,
+     "median_deposit": 80000,
+     "median_rent": 245,
+     "low_sample": false
+    },
+    "M": {
+     "n": 4,
+     "median_deposit": 47500,
+     "median_rent": 220,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "합정동",
+   "trade": {
+    "M": {
+     "n": 22,
+     "median": 128000,
+     "p25": 105000,
+     "p75": 188750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 12,
+     "median": 231000,
+     "p25": 170250,
+     "p75": 256750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 3,
+     "median": 75700,
+     "p25": 74700,
+     "p75": 78000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 4,
+     "median": 53500,
+     "p25": 50925,
+     "p75": 55000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 22,
+     "median": 64000,
+     "p25": 56250,
+     "p75": 77000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median": 150000,
+     "p25": 87000,
+     "p75": 180000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 4,
+     "median_deposit": 22500,
+     "median_rent": 125,
+     "low_sample": false
+    },
+    "M": {
+     "n": 16,
+     "median_deposit": 30000,
+     "median_rent": 325,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median_deposit": 10000,
+     "median_rent": 457,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "마포구",
+   "dong": "현석동",
+   "trade": {
+    "M": {
+     "n": 11,
+     "median": 218500,
+     "p25": 185500,
+     "p75": 232000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 15,
+     "median": 160000,
+     "p25": 157250,
+     "p75": 167600,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 227500,
+     "p25": 203212,
+     "p75": 291000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 28,
+     "median": 72000,
+     "p25": 60000,
+     "p75": 80000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 33,
+     "median": 100000,
+     "p25": 80000,
+     "p75": 115000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 13,
+     "median": 125000,
+     "p25": 108000,
+     "p75": 130000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 31,
+     "median_deposit": 20000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "M": {
+     "n": 40,
+     "median_deposit": 30000,
+     "median_rent": 130,
+     "low_sample": false
+    },
+    "L": {
+     "n": 9,
+     "median_deposit": 35000,
+     "median_rent": 260,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "금호동1가",
+   "trade": {
+    "M": {
+     "n": 41,
+     "median": 180000,
+     "p25": 170000,
+     "p75": 220000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 49,
+     "median": 167000,
+     "p25": 163000,
+     "p75": 204000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 17,
+     "median": 185000,
+     "p25": 178000,
+     "p75": 190000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 93,
+     "median": 79000,
+     "p25": 50000,
+     "p75": 85000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 76,
+     "median": 97800,
+     "p25": 59000,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 21,
+     "median": 65000,
+     "p25": 58000,
+     "p75": 70000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 94,
+     "median_deposit": 14022,
+     "median_rent": 154,
+     "low_sample": false
+    },
+    "L": {
+     "n": 23,
+     "median_deposit": 27000,
+     "median_rent": 170,
+     "low_sample": false
+    },
+    "M": {
+     "n": 60,
+     "median_deposit": 20000,
+     "median_rent": 220,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "금호동2가",
+   "trade": {
+    "S": {
+     "n": 20,
+     "median": 202500,
+     "p25": 188375,
+     "p75": 205750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median": 225000,
+     "p25": 222000,
+     "p75": 234250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 10,
+     "median": 202000,
+     "p25": 192625,
+     "p75": 205000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 80,
+     "median": 76000,
+     "p25": 73000,
+     "p75": 81000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 51,
+     "median": 95000,
+     "p25": 89000,
+     "p75": 98000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median": 120000,
+     "p25": 119500,
+     "p75": 120000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 41,
+     "median_deposit": 20000,
+     "median_rent": 270,
+     "low_sample": false
+    },
+    "S": {
+     "n": 68,
+     "median_deposit": 20000,
+     "median_rent": 230,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median_deposit": 15000,
+     "median_rent": 435,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "금호동3가",
+   "trade": {
+    "M": {
+     "n": 11,
+     "median": 167000,
+     "p25": 152000,
+     "p75": 180750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 22,
+     "median": 163750,
+     "p25": 159125,
+     "p75": 170750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median": 202000,
+     "p25": 200000,
+     "p75": 204000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 51,
+     "median": 65000,
+     "p25": 60000,
+     "p75": 72200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 29,
+     "median": 76000,
+     "p25": 72975,
+     "p75": 82000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 48,
+     "median": 55000,
+     "p25": 50000,
+     "p75": 60500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 27,
+     "median_deposit": 20000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "S": {
+     "n": 34,
+     "median_deposit": 7984,
+     "median_rent": 160,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median_deposit": 10000,
+     "median_rent": 250,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "금호동4가",
+   "trade": {
+    "M": {
+     "n": 31,
+     "median": 191000,
+     "p25": 182500,
+     "p75": 209750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 37,
+     "median": 178000,
+     "p25": 148500,
+     "p75": 195000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median": 275000,
+     "p25": 247000,
+     "p75": 286750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 105,
+     "median": 85000,
+     "p25": 78000,
+     "p75": 100000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 18,
+     "median": 117000,
+     "p25": 110500,
+     "p75": 130000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 72,
+     "median": 70500,
+     "p25": 63750,
+     "p75": 78125,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 88,
+     "median_deposit": 30000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "S": {
+     "n": 84,
+     "median_deposit": 16367,
+     "median_rent": 218,
+     "low_sample": false
+    },
+    "L": {
+     "n": 18,
+     "median_deposit": 20500,
+     "median_rent": 320,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "도선동",
+   "trade": {
+    "M": {
+     "n": 11,
+     "median": 114500,
+     "p25": 104500,
+     "p75": 120000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 18,
+     "median": 65500,
+     "p25": 62000,
+     "p75": 69875,
+     "low_sample": false
+    },
+    "S": {
+     "n": 1,
+     "median": 13230,
+     "p25": 13230,
+     "p75": 13230,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 19,
+     "median_deposit": 1000,
+     "median_rent": 59,
+     "low_sample": false
+    },
+    "M": {
+     "n": 16,
+     "median_deposit": 27500,
+     "median_rent": 155,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "마장동",
+   "trade": {
+    "S": {
+     "n": 127,
+     "median": 33050,
+     "p25": 32400,
+     "p75": 69025,
+     "low_sample": false
+    },
+    "M": {
+     "n": 54,
+     "median": 137500,
+     "p25": 112000,
+     "p75": 147425,
+     "low_sample": false
+    },
+    "L": {
+     "n": 11,
+     "median": 159500,
+     "p25": 147450,
+     "p75": 167850,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 74,
+     "median": 55500,
+     "p25": 45000,
+     "p75": 68000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 60,
+     "median": 50000,
+     "p25": 27750,
+     "p75": 57250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 71625,
+     "p25": 57175,
+     "p75": 90750,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 47,
+     "median_deposit": 20000,
+     "median_rent": 120,
+     "low_sample": false
+    },
+    "S": {
+     "n": 316,
+     "median_deposit": 3373,
+     "median_rent": 33,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median_deposit": 33000,
+     "median_rent": 110,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "사근동",
+   "trade": {
+    "M": {
+     "n": 17,
+     "median": 86000,
+     "p25": 80000,
+     "p75": 91800,
+     "low_sample": false
+    },
+    "S": {
+     "n": 1,
+     "median": 16300,
+     "p25": 16300,
+     "p75": 16300,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 6,
+     "median": 47500,
+     "p25": 47000,
+     "p75": 51750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 2,
+     "median": 16000,
+     "p25": 16000,
+     "p75": 16000,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 48,
+     "median_deposit": 1500,
+     "median_rent": 68,
+     "low_sample": false
+    },
+    "M": {
+     "n": 10,
+     "median_deposit": 5000,
+     "median_rent": 170,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "상왕십리동",
+   "trade": {
+    "M": {
+     "n": 9,
+     "median": 218500,
+     "p25": 209000,
+     "p75": 222000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median": 219000,
+     "p25": 216500,
+     "p75": 231000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 5,
+     "median": 165000,
+     "p25": 25000,
+     "p75": 179000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 13,
+     "median": 73000,
+     "p25": 52000,
+     "p75": 78000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 33,
+     "median": 90000,
+     "p25": 88000,
+     "p75": 95000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 115000,
+     "p25": 110000,
+     "p75": 120000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 26,
+     "median_deposit": 10000,
+     "median_rent": 100,
+     "low_sample": false
+    },
+    "M": {
+     "n": 29,
+     "median_deposit": 40000,
+     "median_rent": 208,
+     "low_sample": false
+    },
+    "L": {
+     "n": 9,
+     "median_deposit": 40000,
+     "median_rent": 320,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "성수동1가",
+   "trade": {
+    "S": {
+     "n": 39,
+     "median": 181000,
+     "p25": 148000,
+     "p75": 202000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 7,
+     "median": 618000,
+     "p25": 286000,
+     "p75": 785000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 44,
+     "median": 183250,
+     "p25": 155750,
+     "p75": 215500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 41,
+     "median": 95000,
+     "p25": 60000,
+     "p75": 340000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 232,
+     "median": 70000,
+     "p25": 60000,
+     "p75": 100000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 153,
+     "median": 82000,
+     "p25": 72000,
+     "p75": 125000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 222,
+     "median_deposit": 20000,
+     "median_rent": 240,
+     "low_sample": false
+    },
+    "L": {
+     "n": 31,
+     "median_deposit": 50000,
+     "median_rent": 1550,
+     "low_sample": false
+    },
+    "M": {
+     "n": 141,
+     "median_deposit": 40000,
+     "median_rent": 300,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "성수동2가",
+   "trade": {
+    "M": {
+     "n": 39,
+     "median": 195000,
+     "p25": 134950,
+     "p75": 231000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 20,
+     "median": 211000,
+     "p25": 190500,
+     "p75": 220750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 21,
+     "median": 120000,
+     "p25": 83000,
+     "p75": 285000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "L": {
+     "n": 37,
+     "median": 100000,
+     "p25": 89000,
+     "p75": 110000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 49,
+     "median": 58000,
+     "p25": 47000,
+     "p75": 70000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 73,
+     "median": 66000,
+     "p25": 57750,
+     "p75": 77000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 42,
+     "median_deposit": 27500,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "S": {
+     "n": 24,
+     "median_deposit": 20000,
+     "median_rent": 115,
+     "low_sample": false
+    },
+    "L": {
+     "n": 34,
+     "median_deposit": 30000,
+     "median_rent": 315,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "송정동",
+   "trade": {
+    "M": {
+     "n": 28,
+     "median": 114250,
+     "p25": 108000,
+     "p75": 127000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 12,
+     "median": 96250,
+     "p25": 91875,
+     "p75": 99625,
+     "low_sample": false
+    },
+    "L": {
+     "n": 5,
+     "median": 145000,
+     "p25": 143000,
+     "p75": 148000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 13,
+     "median": 55000,
+     "p25": 50700,
+     "p75": 63000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 7,
+     "median": 40000,
+     "p25": 33500,
+     "p75": 47500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 4,
+     "median": 76500,
+     "p25": 72000,
+     "p75": 82500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 8,
+     "median_deposit": 24000,
+     "median_rent": 80,
+     "low_sample": false
+    },
+    "M": {
+     "n": 7,
+     "median_deposit": 15000,
+     "median_rent": 165,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "옥수동",
+   "trade": {
+    "S": {
+     "n": 73,
+     "median": 214000,
+     "p25": 188000,
+     "p75": 228000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 72,
+     "median": 231000,
+     "p25": 189500,
+     "p75": 250000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 42,
+     "median": 255000,
+     "p25": 182875,
+     "p75": 303000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 140,
+     "median": 80000,
+     "p25": 68750,
+     "p75": 90000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 153,
+     "median": 90000,
+     "p25": 70000,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 81,
+     "median": 80000,
+     "p25": 55000,
+     "p75": 105000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 159,
+     "median_deposit": 15000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "M": {
+     "n": 165,
+     "median_deposit": 20000,
+     "median_rent": 260,
+     "low_sample": false
+    },
+    "L": {
+     "n": 68,
+     "median_deposit": 30000,
+     "median_rent": 255,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "용답동",
+   "trade": {
+    "M": {
+     "n": 9,
+     "median": 111000,
+     "p25": 84800,
+     "p75": 114700,
+     "low_sample": false
+    },
+    "S": {
+     "n": 2,
+     "median": 69000,
+     "p25": 68000,
+     "p75": 70000,
+     "low_sample": true
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 25,
+     "median": 50310,
+     "p25": 34398,
+     "p75": 50310,
+     "low_sample": false
+    },
+    "M": {
+     "n": 1,
+     "median": 81500,
+     "p25": 81500,
+     "p75": 81500,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 62,
+     "median_deposit": 4900,
+     "median_rent": 50,
+     "low_sample": false
+    },
+    "M": {
+     "n": 8,
+     "median_deposit": 42500,
+     "median_rent": 70,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "응봉동",
+   "trade": {
+    "S": {
+     "n": 34,
+     "median": 153500,
+     "p25": 132250,
+     "p75": 165000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 40,
+     "median": 166750,
+     "p25": 152025,
+     "p75": 188500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 8,
+     "median": 237500,
+     "p25": 232500,
+     "p75": 246250,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 66,
+     "median": 48000,
+     "p25": 45000,
+     "p75": 58000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 75,
+     "median": 58000,
+     "p25": 55000,
+     "p75": 60000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 31,
+     "median": 67000,
+     "p25": 65000,
+     "p75": 77500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 56,
+     "median_deposit": 10000,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "M": {
+     "n": 47,
+     "median_deposit": 10000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 19,
+     "median_deposit": 20000,
+     "median_rent": 200,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "하왕십리동",
+   "trade": {
+    "L": {
+     "n": 38,
+     "median": 161500,
+     "p25": 149125,
+     "p75": 230500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 90,
+     "median": 152250,
+     "p25": 134625,
+     "p75": 193875,
+     "low_sample": false
+    },
+    "M": {
+     "n": 105,
+     "median": 158000,
+     "p25": 137500,
+     "p75": 223000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 136,
+     "median": 90000,
+     "p25": 73000,
+     "p75": 100000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 147,
+     "median": 75000,
+     "p25": 62000,
+     "p75": 80000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 51,
+     "median": 77000,
+     "p25": 63500,
+     "p75": 106500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 147,
+     "median_deposit": 14800,
+     "median_rent": 140,
+     "low_sample": false
+    },
+    "M": {
+     "n": 102,
+     "median_deposit": 30000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "L": {
+     "n": 28,
+     "median_deposit": 36500,
+     "median_rent": 210,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "행당동",
+   "trade": {
+    "L": {
+     "n": 44,
+     "median": 198000,
+     "p25": 189750,
+     "p75": 212375,
+     "low_sample": false
+    },
+    "M": {
+     "n": 80,
+     "median": 185000,
+     "p25": 175000,
+     "p75": 195000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 107,
+     "median": 160000,
+     "p25": 150000,
+     "p75": 165750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 200,
+     "median": 61000,
+     "p25": 55000,
+     "p75": 66250,
+     "low_sample": false
+    },
+    "M": {
+     "n": 177,
+     "median": 80000,
+     "p25": 73000,
+     "p75": 100000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 59,
+     "median": 90000,
+     "p25": 84500,
+     "p75": 100000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 224,
+     "median_deposit": 10000,
+     "median_rent": 140,
+     "low_sample": false
+    },
+    "M": {
+     "n": 156,
+     "median_deposit": 25000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "L": {
+     "n": 55,
+     "median_deposit": 40000,
+     "median_rent": 240,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "성동구",
+   "dong": "홍익동",
+   "trade": {
+    "M": {
+     "n": 6,
+     "median": 107250,
+     "p25": 78250,
+     "p75": 109625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 2,
+     "median": 64750,
+     "p25": 60500,
+     "p75": 69000,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 1,
+     "median_deposit": 52000,
+     "median_rent": 75,
+     "low_sample": true
+    },
+    "S": {
+     "n": 109,
+     "median_deposit": 8000,
+     "median_rent": 53,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "가락동",
+   "trade": {
+    "L": {
+     "n": 142,
+     "median": 207750,
+     "p25": 145000,
+     "p75": 300000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 237,
+     "median": 175000,
+     "p25": 80000,
+     "p75": 193000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 251,
+     "median": 207000,
+     "p25": 157750,
+     "p75": 279500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 264,
+     "median": 62000,
+     "p25": 46000,
+     "p75": 76000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 245,
+     "median": 116000,
+     "p25": 85000,
+     "p75": 125000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 116,
+     "median": 108500,
+     "p25": 85000,
+     "p75": 160000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 96,
+     "median_deposit": 20000,
+     "median_rent": 245,
+     "low_sample": false
+    },
+    "S": {
+     "n": 738,
+     "median_deposit": 13680,
+     "median_rent": 50,
+     "low_sample": false
+    },
+    "M": {
+     "n": 360,
+     "median_deposit": 40000,
+     "median_rent": 220,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "거여동",
+   "trade": {
+    "S": {
+     "n": 202,
+     "median": 108250,
+     "p25": 92000,
+     "p75": 129000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 121,
+     "median": 135000,
+     "p25": 118000,
+     "p75": 191500,
+     "low_sample": false
+    },
+    "L": {
+     "n": 68,
+     "median": 204250,
+     "p25": 154375,
+     "p75": 227000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 197,
+     "median": 54000,
+     "p25": 45000,
+     "p75": 77000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 107,
+     "median": 98000,
+     "p25": 90000,
+     "p75": 110000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 182,
+     "median": 82000,
+     "p25": 70000,
+     "p75": 94875,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 228,
+     "median_deposit": 10219,
+     "median_rent": 80,
+     "low_sample": false
+    },
+    "L": {
+     "n": 58,
+     "median_deposit": 50000,
+     "median_rent": 175,
+     "low_sample": false
+    },
+    "M": {
+     "n": 157,
+     "median_deposit": 30000,
+     "median_rent": 150,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "마천동",
+   "trade": {
+    "S": {
+     "n": 39,
+     "median": 72000,
+     "p25": 67000,
+     "p75": 80500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 63,
+     "median": 100000,
+     "p25": 86750,
+     "p75": 123350,
+     "low_sample": false
+    },
+    "L": {
+     "n": 19,
+     "median": 132000,
+     "p25": 115000,
+     "p75": 143000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 44,
+     "median": 57000,
+     "p25": 48952,
+     "p75": 66000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 23,
+     "median": 40000,
+     "p25": 28500,
+     "p75": 49000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 10,
+     "median": 65480,
+     "p25": 52960,
+     "p75": 80000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 110,
+     "median_deposit": 5576,
+     "median_rent": 32,
+     "low_sample": false
+    },
+    "M": {
+     "n": 18,
+     "median_deposit": 25000,
+     "median_rent": 130,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "문정동",
+   "trade": {
+    "M": {
+     "n": 154,
+     "median": 181250,
+     "p25": 108125,
+     "p75": 206250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 202,
+     "median": 97500,
+     "p25": 82850,
+     "p75": 111125,
+     "low_sample": false
+    },
+    "L": {
+     "n": 90,
+     "median": 280500,
+     "p25": 220750,
+     "p75": 305000,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 134,
+     "median": 30000,
+     "p25": 25000,
+     "p75": 54500,
+     "low_sample": false
+    },
+    "M": {
+     "n": 190,
+     "median": 85000,
+     "p25": 62000,
+     "p75": 95000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 110,
+     "median": 103500,
+     "p25": 93000,
+     "p75": 110000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 208,
+     "median_deposit": 9050,
+     "median_rent": 90,
+     "low_sample": false
+    },
+    "M": {
+     "n": 146,
+     "median_deposit": 40000,
+     "median_rent": 149,
+     "low_sample": false
+    },
+    "L": {
+     "n": 47,
+     "median_deposit": 60000,
+     "median_rent": 120,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "방이동",
+   "trade": {
+    "L": {
+     "n": 79,
+     "median": 297000,
+     "p25": 254000,
+     "p75": 350000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 99,
+     "median": 205000,
+     "p25": 117000,
+     "p75": 272500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 52,
+     "median": 42500,
+     "p25": 32200,
+     "p75": 62625,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 134,
+     "median": 85000,
+     "p25": 70000,
+     "p75": 90750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 101,
+     "median": 110000,
+     "p25": 95000,
+     "p75": 120000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 33,
+     "median": 35000,
+     "p25": 29000,
+     "p75": 45000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 75,
+     "median_deposit": 50000,
+     "median_rent": 200,
+     "low_sample": false
+    },
+    "M": {
+     "n": 87,
+     "median_deposit": 45000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "S": {
+     "n": 72,
+     "median_deposit": 10000,
+     "median_rent": 80,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "삼전동",
+   "trade": {
+    "S": {
+     "n": 9,
+     "median": 76000,
+     "p25": 75000,
+     "p75": 78000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 11,
+     "median": 136000,
+     "p25": 109000,
+     "p75": 147900,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 6,
+     "median": 45650,
+     "p25": 45000,
+     "p75": 46975,
+     "low_sample": false
+    },
+    "M": {
+     "n": 2,
+     "median": 71500,
+     "p25": 70000,
+     "p75": 73000,
+     "low_sample": true
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 26,
+     "median_deposit": 1000,
+     "median_rent": 80,
+     "low_sample": false
+    },
+    "M": {
+     "n": 5,
+     "median_deposit": 20000,
+     "median_rent": 200,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "석촌동",
+   "trade": {
+    "L": {
+     "n": 11,
+     "median": 207000,
+     "p25": 199000,
+     "p75": 215000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 21,
+     "median": 168000,
+     "p25": 85000,
+     "p75": 189000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 15,
+     "median": 26000,
+     "p25": 23350,
+     "p75": 130228,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "S": {
+     "n": 16,
+     "median": 32097,
+     "p25": 23750,
+     "p75": 45641,
+     "low_sample": false
+    },
+    "L": {
+     "n": 6,
+     "median": 130000,
+     "p25": 38400,
+     "p75": 140000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 9,
+     "median": 85000,
+     "p25": 80000,
+     "p75": 85000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 59,
+     "median_deposit": 1000,
+     "median_rent": 100,
+     "low_sample": false
+    },
+    "L": {
+     "n": 3,
+     "median_deposit": 50000,
+     "median_rent": 290,
+     "low_sample": false
+    },
+    "M": {
+     "n": 11,
+     "median_deposit": 20000,
+     "median_rent": 245,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "송파동",
+   "trade": {
+    "S": {
+     "n": 40,
+     "median": 135000,
+     "p25": 98875,
+     "p75": 166125,
+     "low_sample": false
+    },
+    "M": {
+     "n": 93,
+     "median": 203000,
+     "p25": 148000,
+     "p75": 217000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 46,
+     "median": 246500,
+     "p25": 228750,
+     "p75": 253750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 85,
+     "median": 73500,
+     "p25": 58000,
+     "p75": 90000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 67,
+     "median": 90000,
+     "p25": 72000,
+     "p75": 115000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 57,
+     "median": 62000,
+     "p25": 50000,
+     "p75": 67000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "L": {
+     "n": 54,
+     "median_deposit": 40000,
+     "median_rent": 140,
+     "low_sample": false
+    },
+    "M": {
+     "n": 60,
+     "median_deposit": 30000,
+     "median_rent": 100,
+     "low_sample": false
+    },
+    "S": {
+     "n": 31,
+     "median_deposit": 24000,
+     "median_rent": 120,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "신천동",
+   "trade": {
+    "L": {
+     "n": 70,
+     "median": 339000,
+     "p25": 280750,
+     "p75": 363750,
+     "low_sample": false
+    },
+    "M": {
+     "n": 171,
+     "median": 296500,
+     "p25": 281750,
+     "p75": 306500,
+     "low_sample": false
+    },
+    "S": {
+     "n": 78,
+     "median": 156500,
+     "p25": 140000,
+     "p75": 260750,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 287,
+     "median": 104000,
+     "p25": 70000,
+     "p75": 113250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 152,
+     "median": 127500,
+     "p25": 83750,
+     "p75": 152250,
+     "low_sample": false
+    },
+    "S": {
+     "n": 142,
+     "median": 67500,
+     "p25": 52000,
+     "p75": 93338,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 303,
+     "median_deposit": 30000,
+     "median_rent": 220,
+     "low_sample": false
+    },
+    "S": {
+     "n": 165,
+     "median_deposit": 10000,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "L": {
+     "n": 95,
+     "median_deposit": 40000,
+     "median_rent": 340,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "오금동",
+   "trade": {
+    "S": {
+     "n": 81,
+     "median": 126000,
+     "p25": 81000,
+     "p75": 135000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 109,
+     "median": 149000,
+     "p25": 122000,
+     "p75": 169000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 51,
+     "median": 183000,
+     "p25": 168250,
+     "p75": 249500,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 137,
+     "median": 68000,
+     "p25": 56000,
+     "p75": 80000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 75,
+     "median": 38000,
+     "p25": 34000,
+     "p75": 45250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 80,
+     "median": 90000,
+     "p25": 84500,
+     "p75": 98000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 74,
+     "median_deposit": 7152,
+     "median_rent": 64,
+     "low_sample": false
+    },
+    "M": {
+     "n": 74,
+     "median_deposit": 31000,
+     "median_rent": 120,
+     "low_sample": false
+    },
+    "L": {
+     "n": 39,
+     "median_deposit": 35000,
+     "median_rent": 100,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "잠실동",
+   "trade": {
+    "M": {
+     "n": 401,
+     "median": 335000,
+     "p25": 318000,
+     "p75": 365000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 164,
+     "median": 270000,
+     "p25": 158000,
+     "p75": 286250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 156,
+     "median": 375500,
+     "p25": 330000,
+     "p75": 411250,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 588,
+     "median": 118000,
+     "p25": 55000,
+     "p75": 130000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 189,
+     "median": 155000,
+     "p25": 110000,
+     "p75": 180000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 178,
+     "median": 100000,
+     "p25": 65000,
+     "p75": 109000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "M": {
+     "n": 600,
+     "median_deposit": 30000,
+     "median_rent": 240,
+     "low_sample": false
+    },
+    "S": {
+     "n": 300,
+     "median_deposit": 10000,
+     "median_rent": 180,
+     "low_sample": false
+    },
+    "L": {
+     "n": 141,
+     "median_deposit": 60000,
+     "median_rent": 280,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "장지동",
+   "trade": {
+    "M": {
+     "n": 91,
+     "median": 180000,
+     "p25": 173500,
+     "p75": 190000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 300,
+     "median": 42000,
+     "p25": 41350,
+     "p75": 155250,
+     "low_sample": false
+    },
+    "L": {
+     "n": 66,
+     "median": 218000,
+     "p25": 205250,
+     "p75": 228375,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 179,
+     "median": 80000,
+     "p25": 70000,
+     "p75": 85000,
+     "low_sample": false
+    },
+    "L": {
+     "n": 96,
+     "median": 101250,
+     "p25": 95000,
+     "p75": 105000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 245,
+     "median": 64000,
+     "p25": 58000,
+     "p75": 69500,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 313,
+     "median_deposit": 7063,
+     "median_rent": 36,
+     "low_sample": false
+    },
+    "M": {
+     "n": 106,
+     "median_deposit": 40000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "L": {
+     "n": 74,
+     "median_deposit": 50000,
+     "median_rent": 205,
+     "low_sample": false
+    }
+   }
+  },
+  {
+   "gu": "송파구",
+   "dong": "풍납동",
+   "trade": {
+    "L": {
+     "n": 37,
+     "median": 173000,
+     "p25": 155000,
+     "p75": 190000,
+     "low_sample": false
+    },
+    "S": {
+     "n": 135,
+     "median": 106000,
+     "p25": 79750,
+     "p75": 136000,
+     "low_sample": false
+    },
+    "M": {
+     "n": 148,
+     "median": 143750,
+     "p25": 114000,
+     "p75": 160375,
+     "low_sample": false
+    }
+   },
+   "jeonse": {
+    "M": {
+     "n": 146,
+     "median": 70000,
+     "p25": 57000,
+     "p75": 75750,
+     "low_sample": false
+    },
+    "S": {
+     "n": 126,
+     "median": 51000,
+     "p25": 44000,
+     "p75": 57750,
+     "low_sample": false
+    },
+    "L": {
+     "n": 24,
+     "median": 80000,
+     "p25": 65000,
+     "p75": 90000,
+     "low_sample": false
+    }
+   },
+   "wolse": {
+    "S": {
+     "n": 131,
+     "median_deposit": 17000,
+     "median_rent": 78,
+     "low_sample": false
+    },
+    "M": {
+     "n": 75,
+     "median_deposit": 30000,
+     "median_rent": 150,
+     "low_sample": false
+    },
+    "L": {
+     "n": 21,
+     "median_deposit": 20000,
+     "median_rent": 150,
+     "low_sample": false
+    }
+   }
+  }
+ ]
+}

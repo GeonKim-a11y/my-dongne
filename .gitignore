@@ -1,0 +1,4 @@
+.env
+__pycache__/
+.venv/
+web/data/market_by_dong.json

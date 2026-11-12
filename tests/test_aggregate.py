@@ -241,7 +241,7 @@ def test_hospital_point_filters_and_case_insensitive():
     assert fh.to_point(lower, {"강남구"})[2] == "H"
     assert fh.to_point(ok, {"마포구"}) is None                       # 비활성 구
     assert fh.to_point({**ok, "clCd": "71"}, {"강남구"}) is None      # 분류에 없는 종별(보건소 등)
-    assert [fh.to_point({**ok, "clCd": c}, {"강남구"})[2] for c in ("41", "51", "91", "92", "29")] == ["D", "D", "K", "K", "H"]
+    assert [fh.to_point({**ok, "clCd": c}, {"강남구"})[2] for c in ("41", "51", "92", "93", "29")] == ["D", "D", "K", "K", "H"]
     assert fh.to_point({**ok, "XPos": "0", "YPos": "0"}, {"강남구"}) is None   # 잘못된 좌표
     assert fh.to_point({**ok, "XPos": ""}, {"강남구"}) is None
 

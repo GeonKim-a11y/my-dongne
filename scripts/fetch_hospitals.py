@@ -109,6 +109,12 @@ def main():
     import requests
     items = fetch_all(requests.Session(), key, args.url)
     print(f"서울 전체 {len(items)}건 수신")
+    kinds = {}
+    for i in items:   # 종별코드 확인용: 코드 -> (이름, 건수)
+        k = pick(i, "clCd")
+        n, c = kinds.get(k, (pick(i, "clCdNm"), 0))
+        kinds[k] = (n, c + 1)
+    print("종별코드:", ", ".join(f"{k}={n}({c})" for k, (n, c) in sorted(kinds.items())))
     out = build(items, active)
     if not out["points"]:
         sys.exit("활성 구에 해당하는 의료기관이 0건입니다. 응답 필드(sgguCdNm, clCd, XPos, YPos)를 확인하세요. 파일은 갱신하지 않았습니다.")

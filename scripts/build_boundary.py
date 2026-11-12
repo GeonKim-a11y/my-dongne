@@ -6,7 +6,7 @@
   3) 그 외                                  -> 매핑 없음 (지도에서 회색)
 정확한 방법(아파트 주소를 지오코딩해 행정동에 배정)으로 바꾸기 전까지의 임시 방법이다.
 
-사용: python scripts/build_boundary.py <행정동 geojson 경로>
+사용: python scripts/build_boundary.py <행정동 geojson 경로>   (구 외곽선 생성에 shapely 필요: pip install shapely)
 경계 원본: https://github.com/vuski/admdongkor (HangJeongDong_ver20260701.geojson)
 """
 import argparse
@@ -92,10 +92,40 @@ def build(src_geojson, regions, market):
     return {"type": "FeatureCollection", "features": feats}
 
 
+def build_outline(src_geojson, regions, tol=0.0004):
+    """서울 25개 구 외곽선(구별로 합친 것)과, 서울 밖을 가리는 마스크를 만든다. shapely가 필요하다(이 파일을 만들 때만)."""
+    from shapely.geometry import shape, mapping
+    from shapely.ops import unary_union
+
+    active = set(regions["active_gu"])
+    by_gu = {}
+    for f in src_geojson["features"]:
+        p = f["properties"]
+        if p.get("sido") == "11":
+            by_gu.setdefault(p["sggnm"], []).append(shape(f["geometry"]).buffer(0))
+    feats, merged = [], []
+    for gu, geoms in sorted(by_gu.items()):
+        g = unary_union(geoms).simplify(tol)
+        merged.append(g)
+        feats.append({"type": "Feature", "properties": {"gu": gu, "active": gu in active, "kind": "gu"},
+                      "geometry": json.loads(json.dumps(mapping(g)))})
+    seoul = unary_union(merged)
+    parts = list(seoul.geoms) if seoul.geom_type == "MultiPolygon" else [seoul]
+    holes = [[[round(x, 4), round(y, 4)] for x, y in part.exterior.coords] for part in parts]
+    world = [[124.0, 32.5], [132.0, 32.5], [132.0, 40.0], [124.0, 40.0], [124.0, 32.5]]
+    feats.append({"type": "Feature", "properties": {"kind": "mask"},
+                  "geometry": {"type": "Polygon", "coordinates": [world] + holes}})
+    for f in feats:
+        if f["properties"]["kind"] == "gu":
+            f["geometry"]["coordinates"] = round_coords(f["geometry"]["coordinates"])
+    return {"type": "FeatureCollection", "features": feats}
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("src")
     ap.add_argument("--out", default=str(ROOT / "web/data/dong_boundary.json"))
+    ap.add_argument("--outline-out", default=str(ROOT / "web/data/seoul_outline.json"))
     ap.add_argument("--market", default=str(ROOT / "web/data/market_by_dong.json"))
     a = ap.parse_args()
     regions = json.loads((ROOT / "config/regions.json").read_text(encoding="utf-8"))
@@ -106,6 +136,9 @@ def main():
     n = len(out["features"])
     ex = sum(1 for f in out["features"] if f["properties"]["match"] == "exact")
     ap_ = sum(1 for f in out["features"] if f["properties"]["match"] == "approx")
+    outline = build_outline(src, regions)
+    Path(a.outline_out).write_text(json.dumps(outline, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"구 외곽선 {len(outline['features']) - 1}개 + 서울 밖 마스크 -> {a.outline_out}")
     print(f"행정동 {n}개: 정확 매핑 {ex}, 근사 매핑 {ap_}, 매핑 없음 {n - ex - ap_} -> {a.out}")
 
 

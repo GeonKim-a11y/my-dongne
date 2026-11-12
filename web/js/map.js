@@ -19,7 +19,7 @@ function esc(s) {
   return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 }
 
-export async function initMap(el, url = "data/dong_boundary.json") {
+export async function initMap(el, url = "data/dong_boundary.json", outlineUrl = "data/seoul_outline.json") {
   if (typeof L === "undefined") { el.textContent = "지도 라이브러리를 불러오지 못했습니다."; return false; }
   try {
     const r = await fetch(url);
@@ -29,13 +29,41 @@ export async function initMap(el, url = "data/dong_boundary.json") {
     el.textContent = "경계 파일(data/dong_boundary.json)을 찾을 수 없습니다.";
     return false;
   }
-  map = L.map(el, { zoomControl: true, attributionControl: true });
+  let outline = null;
+  try {
+    const r2 = await fetch(outlineUrl);
+    if (r2.ok) outline = await r2.json();
+  } catch (e) { /* 외곽선 없이도 지도는 동작 */ }
+  map = L.map(el, { zoomControl: true, attributionControl: true, minZoom: 10 });
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   }).addTo(map);
+  let seoulBounds = null;
+  if (outline) {
+    const feats = outline.features;
+    const guFeats = { type: "FeatureCollection", features: feats.filter((f) => f.properties.kind === "gu") };
+    // 서울 밖은 가린다 (배경지도 위에 불투명 마스크).
+    map.createPane("mask"); map.getPane("mask").style.zIndex = 350;
+    L.geoJSON(feats.find((f) => f.properties.kind === "mask"), {
+      pane: "mask", interactive: false,
+      style: { stroke: false, fillColor: getComputedStyle(document.body).backgroundColor || "#f6f7f9", fillOpacity: 1 },
+    }).addTo(map);
+    // 아직 분석하지 않는 구는 경계선만.
+    L.geoJSON({ type: "FeatureCollection", features: guFeats.features.filter((f) => !f.properties.active) }, {
+      style: { color: "#98a2b3", weight: 1.2, fill: true, fillOpacity: 0, dashArray: null },
+      onEachFeature: (f, l) => l.bindTooltip(`${esc(f.properties.gu)} · 아직 분석 대상이 아닙니다`, { sticky: true }),
+    }).addTo(map);
+    seoulBounds = L.geoJSON(guFeats).getBounds();
+    map.setMaxBounds(seoulBounds.pad(0.15));
+  }
   layer = L.geoJSON(boundary, { style: () => ({ weight: 1, color: "#ffffff", fillOpacity: 0.85, fillColor: GRAY_NONE }) }).addTo(map);
-  map.fitBounds(layer.getBounds());
+  if (outline) {
+    // 분석 대상 구의 바깥 경계를 진하게 덧그린다.
+    const act = outline.features.filter((f) => f.properties.kind === "gu" && f.properties.active);
+    L.geoJSON({ type: "FeatureCollection", features: act }, { interactive: false, style: { color: "#0b6e70", weight: 2, fill: false } }).addTo(map);
+  }
+  map.fitBounds(seoulBounds || layer.getBounds());
   return true;
 }
 

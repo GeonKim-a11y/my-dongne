@@ -201,6 +201,10 @@ def probe_filters(session, key, base):
         {}, {"OPN_ATMY_GRP_CD": "3220000"}, {"cond[OPN_ATMY_GRP_CD::EQ]": "3220000"},
         {"cond[MNG_INST_NM::LIKE]": "서울특별시 강남구"}, {"cond[MNG_INST_NM::EQ]": "서울특별시 강남구"},
         {"cond[LCTN_ROAD_NM_ADDR::LIKE]": "서울특별시 강남구"}, {"MNG_INST_NM": "서울특별시 강남구"},
+        # 구별 등록량 확인: 성동구·마포구가 유독 적게 나와서 표기 차이를 본다
+        {"cond[MNG_INST_NM::LIKE]": "성동구"}, {"cond[LCTN_ROAD_NM_ADDR::LIKE]": "성동구"}, {"cond[LCTN_LOTNO_ADDR::LIKE]": "성동구"},
+        {"cond[MNG_INST_NM::LIKE]": "마포구"}, {"cond[LCTN_LOTNO_ADDR::LIKE]": "마포구"},
+        {"cond[MNG_INST_NM::LIKE]": "노원구"}, {"cond[MNG_INST_NM::LIKE]": "관악구"}, {"cond[MNG_INST_NM::LIKE]": "송파구"},
     ]
     for extra in variants:
         try:

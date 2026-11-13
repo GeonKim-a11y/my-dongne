@@ -113,7 +113,7 @@ def parse_any(text):
     return code, total or len(items), items
 
 
-def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_pages=5000):
+def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_pages=5000, verbose=True):
     """끝까지 받으면서 곧바로 서울 활성 구만 걸러 메모리를 아낀다. 서버 페이지 크기가 달라도 totalCount 로 끝낸다."""
     pts, seen, page = [], 0, 1
     while page <= max_pages:
@@ -136,6 +136,8 @@ def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_p
             if p:
                 pts.append(p)
         seen += len(items)
+        if verbose and (page <= 3 or page % 25 == 0):
+            print(f"  페이지 {page}: {len(items)}건 (누적 {seen}/{total}, 서울 활성 구 {len(pts)}건) {time.strftime('%H:%M:%S')}", flush=True)
         if not items or seen >= total:
             break
         page += 1
@@ -190,6 +192,8 @@ def main():
     ap.add_argument("--url", default=URL)
     ap.add_argument("--csv")
     ap.add_argument("--probe", action="store_true")
+    ap.add_argument("--max-pages", type=int, default=5000, help="시험용: 앞쪽 몇 페이지만 받는다")
+    ap.add_argument("--rows", type=int, default=1000)
     ap.add_argument("--out", default=str(root / "web" / "data" / "cctv.json"))
     args = ap.parse_args()
     active, _ = load_regions(root)
@@ -205,7 +209,7 @@ def main():
         s = requests.Session()
         if args.probe:
             return probe(s, key, args.url)
-        pts, seen = fetch_all(s, key, args.url, active_gu=active)
+        pts, seen = fetch_all(s, key, args.url, rows=args.rows, active_gu=active, max_pages=args.max_pages)
     print(f"전체 {seen}건 확인, 활성 구 {len(pts)}건")
     out = build(pts)
     if not out["points"]:

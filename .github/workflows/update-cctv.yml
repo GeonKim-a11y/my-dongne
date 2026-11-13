@@ -6,6 +6,9 @@ on:
       probe:
         description: "true 면 API 주소/응답 형태만 시험 (파일 갱신 없음)"
         default: "false"
+      extra:
+        description: "추가 옵션 (예: --max-pages 3 --rows 100)"
+        default: ""
 permissions:
   contents: write
 jobs:
@@ -22,7 +25,7 @@ jobs:
       - env:
           PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
         run: |
-          if [ "${{ github.event.inputs.probe }}" = "true" ]; then python scripts/fetch_cctv.py --probe; else python scripts/fetch_cctv.py; fi
+          if [ "${{ github.event.inputs.probe }}" = "true" ]; then python scripts/fetch_cctv.py --probe; else python scripts/fetch_cctv.py ${{ github.event.inputs.extra }}; fi
       - run: |
           git config user.name "data-bot"
           git config user.email "data-bot@users.noreply.github.com"

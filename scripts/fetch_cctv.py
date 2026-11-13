@@ -2,7 +2,8 @@
 """서울 CCTV 위치 수집 -> web/data/cctv.json (나의동네찾기, 안전 지표)
 
 출처: 공공데이터포털 '행정안전부_CCTV정보 조회서비스' (전국CCTV표준데이터를 API로 제공)
-  * 이 API의 요청/응답 필드 명세가 페이지에 글로 없어서(이미지) 필드를 이름의 일부(위도/lat, 경도/lon, 목적, 대수)로 찾는다.
+  * 실제 응답 필드(확인됨): WGS84_LAT, WGS84_LOT(경도), INSTL_PRPS_SE_NM(설치목적), CAM_CNTOM(대수), LCTN_LOTNO_ADDR/LCTN_ROAD_NM_ADDR(주소).
+    다른 표기(한글 CSV 등)도 이름 끝/일부로 찾는다.
   * JSON/XML 응답을 모두 처리한다.
   * --probe : 실제 요청을 여러 형태로 시험하고 상태·응답 앞부분을 출력한다 (주소/파라미터를 확인할 때).
   * --csv   : 포털에서 받은 표준데이터 CSV(utf-8/cp949)로 만든다 (용량이 커서 GitHub 웹 업로드는 어렵다).
@@ -34,6 +35,26 @@ def find(item, *subs):
     return ""
 
 
+def find_end(item, *suffixes):
+    """키 이름이 suffixes 중 하나로 '끝나는' 첫 값. (LCTN_LOTNO_ADDR 같은 키와 WGS84_LOT 를 구분하려고 쓴다)"""
+    for k, v in item.items():
+        lk = str(k).lower()
+        if any(lk.endswith(s) for s in suffixes) and v not in ("", None):
+            return v
+    return ""
+
+
+def camera_count(item):
+    """카메라 대수: CAM_CNTOM(실제 응답), '대수', cmrCnt 등. 화소수·보관일수 같은 *_CNT 는 제외."""
+    for k, v in item.items():
+        lk = str(k).lower()
+        if v in ("", None) or "pixel" in lk or "day" in lk or "화소" in lk or "일수" in lk:
+            continue
+        if "cntom" in lk or "대수" in lk or lk.endswith("cnt") or lk.endswith("count"):
+            return v
+    return ""
+
+
 def classify(purpose):
     p = str(purpose)
     if "어린이" in p or "보호구역" in p:
@@ -51,17 +72,17 @@ def to_point(item, active_gu):
     if "서울" not in addr or not any(g in addr for g in active_gu):
         return None
     try:
-        lat = float(find(item, "위도", "lat"))
-        lng = float(find(item, "경도", "lon", "lng"))
+        lat = float(find_end(item, "lat", "위도", "latitude"))
+        lng = float(find_end(item, "lot", "lon", "lng", "longitude", "경도"))      # 실제 응답: WGS84_LAT / WGS84_LOT
     except ValueError:
         return None
     if not (126.7 < lng < 127.3 and 37.4 < lat < 37.8):
         return None
     try:
-        n = max(1, int(float(str(find(item, "대수", "cnt", "count") or 1).replace(",", ""))))
+        n = max(1, int(float(str(camera_count(item) or 1).replace(",", ""))))
     except ValueError:
         n = 1
-    return [round(lng, 5), round(lat, 5), classify(find(item, "목적", "purp")), n]
+    return [round(lng, 5), round(lat, 5), classify(find(item, "목적", "purp", "prps")), n]
 
 
 def parse_any(text):

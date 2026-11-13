@@ -332,3 +332,11 @@ def test_cctv_parse_json_and_xml_and_merge():
     xml = "<response><header><resultCode>00</resultCode></header><body><items><item><a>1</a></item></items><totalCount>1</totalCount></body></response>"
     assert fc.parse_any(xml)[1] == 1
     assert fc.merge([[127.0, 37.5, "B", 1], [127.0, 37.5, "B", 2], [127.0, 37.5, "K", 1]]) == [[127.0, 37.5, "B", 3], [127.0, 37.5, "K", 1]]
+
+
+def test_cctv_real_api_fields():
+    fc = _cctv_mod()
+    real = {"CAM_CNTOM": "2", "CAM_PIXEL_CNT": "200", "INSTL_PRPS_SE_NM": "생활방범", "KPNG_DAY_CNT": "30",
+            "LCTN_LOTNO_ADDR": "서울특별시 강남구 역삼동 1-1", "LCTN_ROAD_NM_ADDR": "서울특별시 강남구 테헤란로",
+            "WGS84_LAT": "37.5", "WGS84_LOT": "127.03"}
+    assert fc.to_point(real, ["강남구"]) == [127.03, 37.5, "B", 2]

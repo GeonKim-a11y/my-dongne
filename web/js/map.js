@@ -11,9 +11,9 @@ const GRAY_OVER = "#cfd4dc";
 const GRAY_NONE = "#eceef2";
 
 function scoreColor(score) {
-  // 0점 연한 청록 -> 100점 진한 청록
+  // 0점 연한 파랑 -> 100점 진한 파랑
   const t = Math.max(0, Math.min(100, score)) / 100;
-  const a = [207, 236, 236], b = [8, 107, 109];
+  const a = [219, 233, 254], b = [27, 100, 218];
   const c = a.map((v, i) => Math.round(v + (b[i] - v) * t));
   return `rgb(${c[0]},${c[1]},${c[2]})`;
 }
@@ -42,6 +42,8 @@ export async function initMap(el, url = "data/dong_boundary.json", outlineUrl = 
     const r2 = await fetch(outlineUrl);
     if (r2.ok) outline = await r2.json();
   } catch (e) { /* 외곽선 없이도 지도는 동작 */ }
+  el.textContent = "";
+  el.style.display = "block";
   map = L.map(el, { zoomControl: true, attributionControl: true, minZoom: 10, zoomSnap: 0.25 });
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
@@ -55,7 +57,7 @@ export async function initMap(el, url = "data/dong_boundary.json", outlineUrl = 
     map.createPane("mask"); map.getPane("mask").style.zIndex = 350;
     L.geoJSON(feats.find((f) => f.properties.kind === "mask"), {
       pane: "mask", interactive: false,
-      style: { stroke: false, fillColor: getComputedStyle(document.body).backgroundColor || "#f6f7f9", fillOpacity: 1 },
+      style: { stroke: false, fillColor: getComputedStyle(document.body).backgroundColor || "#f2f4f6", fillOpacity: 1 },
     }).addTo(map);
     // 아직 분석하지 않는 구는 경계선만.
     L.geoJSON({ type: "FeatureCollection", features: guFeats.features.filter((f) => !f.properties.active) }, {
@@ -69,7 +71,7 @@ export async function initMap(el, url = "data/dong_boundary.json", outlineUrl = 
   if (outline) {
     // 분석 대상 구의 바깥 경계를 진하게 덧그린다.
     const act = outline.features.filter((f) => f.properties.kind === "gu" && f.properties.active);
-    L.geoJSON({ type: "FeatureCollection", features: act }, { interactive: false, style: { color: "#0b6e70", weight: 2, fill: false } }).addTo(map);
+    L.geoJSON({ type: "FeatureCollection", features: act }, { interactive: false, style: { color: "#1b64da", weight: 2, fill: false } }).addTo(map);
   }
   map.fitBounds(seoulBounds || layer.getBounds());
   map.on("click", (e) => { if (onProbeCb) onProbeCb(e.latlng.lng, e.latlng.lat); });
@@ -114,7 +116,7 @@ export function showProbe(point, meters) {
   if (probeLayer) { map.removeLayer(probeLayer); probeLayer = null; }
   if (!point) return;
   probeLayer = L.layerGroup([
-    L.circle([point.lat, point.lng], { radius: meters, color: "#0b6e70", weight: 2, fillColor: "#0f8b8d", fillOpacity: 0.12, interactive: false }),
-    L.circleMarker([point.lat, point.lng], { radius: 5, color: "#fff", weight: 2, fillColor: "#0b6e70", fillOpacity: 1, interactive: false }),
+    L.circle([point.lat, point.lng], { radius: meters, color: "#1b64da", weight: 2, fillColor: "#3182f6", fillOpacity: 0.12, interactive: false }),
+    L.circleMarker([point.lat, point.lng], { radius: 5, color: "#fff", weight: 2, fillColor: "#1b64da", fillOpacity: 1, interactive: false }),
   ]).addTo(map);
 }

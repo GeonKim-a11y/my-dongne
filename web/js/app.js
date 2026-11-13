@@ -20,6 +20,7 @@ const state = {
   mode: "trade",
   band: "M",
   hideLow: true,
+  expanded: false,
   showOut: false,
   values: Object.fromEntries(MODES.map((m) => [m, Object.fromEntries(SLIDERS[m].map((s) => [s.id, s.def]))])),
 };
@@ -74,33 +75,18 @@ function buildSliders() {
 }
 
 function buildBands() {
-  const sel = $("band");
-  sel.replaceChildren();
+  const box = $("band");
+  box.replaceChildren();
   Object.entries(DATA.bands).forEach(([k, label]) => {
-    const o = document.createElement("option");
-    o.value = k; o.textContent = label;
-    if (k === state.band) o.selected = true;
-    sel.appendChild(o);
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (k === state.band ? " on" : "");
+    b.textContent = label.replace(/\s*\(.*\)/, "");           // "중형 (60~85㎡)" -> "중형"
+    const m = label.match(/\((.*)\)/);
+    if (m) { const small = document.createElement("small"); small.textContent = m[1]; b.append(" ", small); }
+    b.onclick = () => { state.band = k; buildBands(); render(); };
+    box.appendChild(b);
   });
-  sel.addEventListener("input", () => { state.band = sel.value; render(); });
-}
-
-function cell(tr, text, cls) {
-  const td = document.createElement("td");
-  td.textContent = text;
-  if (cls) td.className = cls;
-  tr.appendChild(td);
-  return td;
-}
-function scoreCell(tr, score) {
-  const td = document.createElement("td");
-  const bar = document.createElement("span");
-  bar.className = "bar";
-  const fill = document.createElement("b");
-  fill.style.width = `${score ?? 0}%`;
-  bar.appendChild(fill);
-  td.append(bar, document.createTextNode(score === null ? "-" : String(score)));
-  tr.appendChild(td);
 }
 
 // 분석 단위(행정동) 목록. 경계 파일이 없으면 법정동 단위로 대신한다.
@@ -171,53 +157,37 @@ function render() {
   showPoints(HOSP && HOSP.points, sel.cats, sel.showPts);
 
   $("sum").textContent =
-    `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} 기준, 예산 안에 들어오는 동네 ${ok.length}곳 / 거래 데이터가 있는 ${totalN}곳` +
-    (useMed ? ` · 예산 ${wB} : 의료 ${wM} 비율로 종합` : "");
+    `예산에 맞는 동네 ${ok.length}곳` +
+    (useMed ? ` · 예산 ${wB} : 의료 ${wM} 비율` : "");
+  $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} · 거래 데이터가 있는 ${totalN}곳 중`;
 
-  const heads = ["#", "동네", mode === "wolse" ? "보증금 / 월세(중앙값)" : mode === "trade" ? "매매가(중앙값)" : "전세 보증금(중앙값)",
-    "예산 점수", ...(useMed ? ["의료기관", "의료 점수"] : []), "종합 점수"];
-  const numCols = [2, ...(useMed ? [4] : [])];
-  const thead = $("head");
-  thead.replaceChildren();
-  heads.forEach((h, i) => {
-    const th = document.createElement("th");
-    th.textContent = h;
-    if (numCols.includes(i)) th.className = "num";
-    thead.appendChild(th);
-  });
-
-  const tb = $("rows");
-  tb.replaceChildren();
+  const list = $("list");
+  list.replaceChildren();
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; };
   const add = (r, no) => {
-    const tr = document.createElement("tr");
-    if (r.status === "over") tr.className = "out";
-    cell(tr, no ?? "-");
-    const nameTd = cell(tr, `${r.u.gu} ${r.u.name}`);
-    if (r.ev.stat && r.ev.stat.low_sample) {
-      const t = document.createElement("span");
-      t.className = "tag"; t.textContent = "표본 부족";
-      nameTd.appendChild(t);
-    }
-    cell(tr, priceText(r), "num");
-    scoreCell(tr, r.ev.score);
-    if (useMed) {
-      cell(tr, r.m ? `${r.m.count}곳 · ${r.m.perKm2.toFixed(0)}/㎢` : "-", "num");
-      scoreCell(tr, r.m ? r.m.score : null);
-    }
-    scoreCell(tr, r.total);
-    tb.appendChild(tr);
+    const item = el("div", "item" + (r.status === "over" ? " out" : "") + (no && no <= 3 ? " top" : ""));
+    item.appendChild(el("div", "rank", no ?? "·"));
+    const mid = el("div", "mid");
+    const name = el("div", "nm", r.u.name);
+    if (r.ev.stat && r.ev.stat.low_sample) name.appendChild(el("span", "tag", "표본 부족"));
+    mid.append(name, el("div", "sb", `${r.u.gu} · ${priceText(r)}`));
+    const chips = el("div", "chips");
+    if (r.ev.score !== null) chips.appendChild(el("span", "mini", `예산 ${r.ev.score}`));
+    if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
+    mid.appendChild(chips);
+    const sc = el("div", "score");
+    sc.appendChild(el("b", "", r.total === null ? "-" : String(r.total)));
+    sc.appendChild(el("small", "", r.status === "over" ? "예산 초과" : "점"));
+    item.append(mid, sc);
+    list.appendChild(item);
   };
-  ok.forEach((r, i) => add(r, i + 1));
+  const shown = state.expanded ? ok : ok.slice(0, 10);
+  shown.forEach((r, i) => add(r, i + 1));
   if (state.showOut) over.forEach((r) => add(r, null));
-  if (!ok.length && !(state.showOut && over.length)) {
-    const tr = document.createElement("tr");
-    const td = document.createElement("td");
-    td.colSpan = heads.length;
-    td.className = "empty";
-    td.textContent = "예산 안에 들어오는 동네가 없습니다. 예산을 올리거나 면적대를 바꿔 보세요.";
-    tr.appendChild(td);
-    tb.appendChild(tr);
-  }
+  if (!ok.length && !(state.showOut && over.length)) list.appendChild(el("div", "empty", "예산 안에 들어오는 동네가 없어요. 예산을 올리거나 면적대를 바꿔 보세요."));
+  const more = $("more");
+  more.hidden = ok.length <= 10;
+  more.textContent = state.expanded ? "접기" : `${ok.length - 10}곳 더 보기`;
   $("note").textContent =
     (mode === "wolse"
       ? "월세는 보증금과 월세를 각각 동네 중앙값과 비교하고, 더 빠듯한 쪽으로 여유율을 계산합니다. "
@@ -230,9 +200,10 @@ function render() {
 // 지도에서 찍은 지점의 반경 분석
 function renderProbe() {
   const box = $("probe");
-  if (!HOSP) { box.textContent = ""; return; }
+  box.hidden = !HOSP;
+  if (!HOSP) return;
   if (!probe) {
-    box.textContent = "지도를 클릭하면 그 지점에서 반경 안의 의료기관을 분석합니다.";
+    box.textContent = "지도를 눌러 보세요. 그 주변 의료기관을 분석해 드려요.";
     showProbe(null, sel.radius);
     return;
   }
@@ -304,6 +275,7 @@ async function init() {
   onProbe((lng, lat) => { if (HOSP) { probe = { lng, lat }; renderProbe(); } });
   buildMedControls();
   buildTabs(); buildSliders(); buildBands();
+  $("more").addEventListener("click", () => { state.expanded = !state.expanded; render(); });
   $("showOut").addEventListener("input", (e) => { state.showOut = e.target.checked; render(); });
   $("hideLow").addEventListener("input", (e) => { state.hideLow = e.target.checked; render(); });
   render();

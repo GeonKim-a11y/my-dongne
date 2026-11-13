@@ -2,101 +2,132 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f4f6">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<title>나의동네찾기 - 매매·전세·월세 예산 모듈</title>
+<title>나의동네찾기</title>
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1b2430;--mute:#667085;--line:#e3e7ee;--accent:#0f8b8d;--accent2:#0b6e70;--warn-bg:#fff4d6;--warn:#6b4e00;--bad:#c2410c}
-@media (prefers-color-scheme:dark){:root{--bg:#12161c;--card:#1a2029;--ink:#e8ecf2;--mute:#98a2b3;--line:#2a3340;--accent:#3cc4c6;--accent2:#7fdcde;--warn-bg:#3a2f0b;--warn:#f3d98a;--bad:#fb923c}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif}
-.wrap{max-width:980px;margin:0 auto;padding:20px 16px 48px}
-h1{font-size:22px;margin:0 0 4px}.sub{color:var(--mute);margin:0 0 14px}
-.banner{border-radius:10px;padding:10px 14px;font-size:13.5px;margin-bottom:14px;background:var(--warn-bg);color:var(--warn)}
-.banner.real{background:color-mix(in srgb,var(--accent) 12%,var(--card));color:var(--accent2)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-.tabs{display:flex;gap:6px;margin-bottom:14px}
-.tabs button{flex:1;padding:8px 0;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;font-size:14.5px;cursor:pointer}
-.tabs button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
-.ctrl{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-@media (max-width:640px){.ctrl{grid-template-columns:1fr}}
-label{display:block;font-size:13.5px;margin-bottom:4px}
-label:has(span.v){display:flex;justify-content:space-between}
-.v{color:var(--accent2);font-weight:700}
-input[type=range]{width:100%;accent-color:var(--accent)}
-select{width:100%;padding:7px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);font-size:14px}
-.chk{display:flex;gap:8px;align-items:center;font-size:13.5px;margin-top:10px}
-.sum{margin:2px 0 10px}
-table{width:100%;border-collapse:collapse;font-size:13.5px}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
-th{color:var(--mute);font-weight:600;position:sticky;top:0;background:var(--card)}
-td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
-td.empty{text-align:center;color:var(--mute);padding:20px}
-.bar{display:inline-block;width:70px;height:7px;background:var(--line);border-radius:4px;overflow:hidden;vertical-align:middle;margin-right:6px}
-.bar b{display:block;height:100%;background:var(--accent)}
-tr.out td{opacity:.45}
-.tag{font-size:11px;color:var(--bad);margin-left:4px}
-.scroll{max-height:560px;overflow:auto}
-.note{font-size:12.5px;color:var(--mute);margin-top:8px}
-#map{height:460px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
-.legend{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mute);margin-top:8px;flex-wrap:wrap}
-.grad{width:110px;height:10px;border-radius:5px;background:linear-gradient(90deg,#cfecec,#086b6d)}
-.sw{width:12px;height:12px;border-radius:3px;display:inline-block;vertical-align:middle}
+:root{
+  --bg:#f2f4f6;--card:#fff;--ink:#191f28;--sub:#4e5968;--mute:#8b95a1;--line:#f2f4f6;--line2:#e5e8eb;
+  --blue:#3182f6;--blue-d:#1b64da;--blue-bg:#e8f3ff;--warn-bg:#fff4e0;--warn:#b25e00;--bad:#f04452;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#17171c;--card:#202027;--ink:#f2f4f6;--sub:#c3c8d0;--mute:#8b95a1;--line:#2c2c35;--line2:#34343e;
+  --blue:#4593fc;--blue-d:#6aa8ff;--blue-bg:#1d2c44;--warn-bg:#3a2d12;--warn:#ffcf7a;--bad:#ff6b77}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR","Malgun Gothic",system-ui,sans-serif;letter-spacing:-.01em}
+.wrap{max-width:640px;margin:0 auto;padding:max(20px,env(safe-area-inset-top)) 16px max(48px,env(safe-area-inset-bottom))}
+.brand{font-size:14px;font-weight:700;color:var(--blue);margin:8px 4px 0}
+h1{font-size:28px;line-height:1.3;font-weight:800;margin:6px 4px 6px;letter-spacing:-.03em}
+.sub{color:var(--mute);margin:0 4px 18px;font-size:15px}
+.banner{border-radius:16px;padding:12px 16px;font-size:13px;line-height:1.5;margin-bottom:10px;background:var(--warn-bg);color:var(--warn)}
+.banner.real{background:var(--blue-bg);color:var(--blue-d)}
+.card{background:var(--card);border-radius:24px;padding:22px 20px;margin-bottom:12px}
+.card h2{font-size:19px;font-weight:700;margin:0 0 16px;letter-spacing:-.02em}
+.seg{display:flex;gap:4px;background:var(--bg);border-radius:14px;padding:4px;margin-bottom:22px}
+.seg button{flex:1;border:0;background:transparent;color:var(--mute);border-radius:11px;padding:11px 0;font:inherit;font-size:15px;font-weight:600;cursor:pointer}
+.seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.field{margin-bottom:22px}
+label{display:block;font-size:14px;color:var(--sub)}
+label:has(span.v){display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.v{color:var(--blue);font-weight:800;font-size:22px;letter-spacing:-.02em}
+input[type=range]{width:100%;height:28px;accent-color:var(--blue);margin:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:0;background:var(--bg);color:var(--sub);border-radius:999px;padding:10px 16px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer}
+.chip small{font-weight:400;color:var(--mute);font-size:12px}
+.chip.on{background:var(--blue);color:#fff}.chip.on small{color:#dbeafe}
+details{border-top:1px solid var(--line2);padding-top:6px}
+summary{cursor:pointer;list-style:none;padding:12px 0;font-weight:700;font-size:15.5px;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"＋";color:var(--mute);font-weight:400}
+details[open] summary::after{content:"－"}
+.chk{display:flex;gap:10px;align-items:center;font-size:15px;color:var(--ink);margin:12px 0}
+.chk input{width:20px;height:20px;accent-color:var(--blue);flex:none}
+.sec{font-size:13px;color:var(--mute);margin:14px 0 8px;font-weight:600}
+#map{height:min(62vh,480px);min-height:320px;border-radius:18px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--mute)}
+.leaflet-container{font:inherit;border-radius:18px}
+.legend{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--mute);margin-top:12px;flex-wrap:wrap}
+.grad{width:90px;height:8px;border-radius:4px;background:linear-gradient(90deg,#dbe9fe,#1b64da)}
+.sw{width:12px;height:12px;border-radius:4px;display:inline-block;vertical-align:-1px;margin-right:2px}
+.probe{background:var(--blue-bg);color:var(--blue-d);border-radius:14px;padding:12px 14px;font-size:14px;margin:12px 0 0;font-weight:500}
+.note{font-size:12.5px;color:var(--mute);margin:12px 2px 0;line-height:1.6}
+.sum{font-size:22px;font-weight:800;margin:0;letter-spacing:-.03em}
+.sumSub{color:var(--mute);font-size:13.5px;margin:2px 0 8px}
+.item{display:flex;align-items:center;gap:14px;padding:16px 4px;border-bottom:1px solid var(--line)}
+.item:last-child{border-bottom:0}
+.item.out{opacity:.45}
+.rank{width:30px;height:30px;border-radius:50%;background:var(--bg);color:var(--sub);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;flex:none}
+.item.top .rank{background:var(--blue);color:#fff}
+.mid{flex:1;min-width:0}
+.nm{font-weight:700;font-size:17px;letter-spacing:-.02em}
+.sb{color:var(--mute);font-size:13.5px;margin-top:1px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.mini{background:var(--bg);color:var(--sub);border-radius:8px;padding:3px 8px;font-size:12px;font-weight:600}
+.tag{font-size:11px;color:var(--bad);margin-left:6px;font-weight:600}
+.score{text-align:right;flex:none}
+.score b{font-size:26px;font-weight:800;color:var(--blue);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.score small{display:block;font-size:12px;color:var(--mute)}
+.empty{text-align:center;color:var(--mute);padding:36px 8px;font-size:15px}
+.more{width:100%;border:0;background:var(--bg);color:var(--sub);border-radius:14px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
+.more[hidden]{display:none}
+@media (min-width:700px){.wrap{max-width:720px}h1{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>나의동네찾기 <span style="font-weight:400;color:var(--mute);font-size:15px">· 예산 모듈</span></h1>
-  <p class="sub">살 집의 종류와 예산을 정하면, 서울 시범 구역에서 예산에 맞는 동네를 보여줍니다.</p>
+  <div class="brand">나의동네찾기</div>
+  <h1>예산에 맞는 동네,<br>같이 찾아볼까요?</h1>
+  <p class="sub">서울 6개 구에서 가격과 생활 환경을 점수로 비교해 드려요.</p>
   <div id="banner" class="banner">데이터 불러오는 중…</div>
 
   <div class="card">
-    <div class="tabs" id="tabs"></div>
-    <div class="ctrl">
-      <div id="sliders"></div>
-      <div>
-        <label for="band">희망 면적대 (전용면적)</label>
-        <select id="band"></select>
-      </div>
+    <h2>어떤 집을 찾으세요?</h2>
+    <div class="seg" id="tabs"></div>
+    <div class="field" id="sliders"></div>
+    <div class="field">
+      <label style="margin-bottom:10px">면적</label>
+      <div class="chips" id="band"></div>
     </div>
-    <div id="medControls" hidden>
-      <hr style="border:0;border-top:1px solid var(--line);margin:12px 0">
-      <label>의료기관 종류 (점수에 반영)</label>
-      <div id="cats" style="display:flex;gap:14px;flex-wrap:wrap"></div>
-      <div class="ctrl" style="margin-top:10px">
-        <div>
-          <label><span>가중치: 예산</span><span class="v" id="wBudgetV"></span></label>
+    <details id="more-opts">
+      <summary>더 자세한 조건</summary>
+      <div id="medControls" hidden>
+        <div class="sec">의료기관 종류 (점수에 반영)</div>
+        <div class="chips" id="cats"></div>
+        <div style="margin-top:20px">
+          <label><span>예산 중요도</span><span class="v" id="wBudgetV"></span></label>
           <input type="range" id="wBudget" min="0" max="5" step="1">
-          <label style="margin-top:8px"><span>가중치: 의료기관</span><span class="v" id="wMedV"></span></label>
+        </div>
+        <div style="margin-top:16px">
+          <label><span>의료기관 중요도</span><span class="v" id="wMedV"></span></label>
           <input type="range" id="wMed" min="0" max="5" step="1">
         </div>
-        <div>
-          <label><span>지도에서 찍은 지점의 분석 반경</span><span class="v" id="radiusV"></span></label>
+        <div style="margin-top:16px">
+          <label><span>지도에서 찍은 곳의 분석 반경</span><span class="v" id="radiusV"></span></label>
           <input type="range" id="radius" min="300" max="3000" step="100">
-          <label class="chk"><input type="checkbox" id="showPts"> 의료기관 위치를 지도에 점으로 표시</label>
         </div>
+        <label class="chk"><input type="checkbox" id="showPts"> 의료기관 위치를 지도에 점으로 보기</label>
       </div>
-    </div>
-    <label class="chk"><input type="checkbox" id="showOut"> 예산 초과 동네도 흐리게 표시</label>
-    <label class="chk"><input type="checkbox" id="hideLow" checked> 거래 건수가 적은 동네(표본 부족)는 제외</label>
+      <label class="chk"><input type="checkbox" id="showOut"> 예산을 넘는 동네도 흐리게 보기</label>
+      <label class="chk"><input type="checkbox" id="hideLow" checked> 거래가 적은 동네는 빼기</label>
+    </details>
   </div>
 
   <div class="card">
+    <h2>지도로 한눈에</h2>
     <div id="map">지도 불러오는 중…</div>
-    <div class="legend"><span>낮음</span><span class="grad"></span><span>높음(예산 점수)</span>
-      <span><i class="sw" style="background:#cfd4dc"></i> 예산 초과</span>
-      <span><i class="sw" style="background:#eceef2;border:1px solid #cfd4dc"></i> 데이터 없음</span>
-      <span>점선 경계 = 근사 매핑</span></div>
-    <p class="note" id="probe" style="color:var(--ink);font-size:13.5px"></p>
-    <p class="note">거래 데이터는 법정동 단위, 경계는 행정동 단위입니다. 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해집니다.</p>
+    <div class="legend"><span>낮음</span><span class="grad"></span><span>높음</span>
+      <span><i class="sw" style="background:#cfd4dc"></i>예산 초과</span>
+      <span><i class="sw" style="background:#eceef2;border:1px solid #cfd4dc"></i>데이터 없음</span></div>
+    <p class="probe" id="probe"></p>
+    <p class="note">점선 경계는 가격을 근사로 연결한 동네예요. 가격은 법정동, 경계는 행정동 기준이라 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해져요.</p>
   </div>
 
   <div class="card">
     <p class="sum" id="sum"></p>
-    <div class="scroll"><table>
-      <thead><tr id="head"></tr></thead>
-      <tbody id="rows"></tbody>
-    </table></div>
+    <p class="sumSub" id="sumSub"></p>
+    <div id="list"></div>
+    <button class="more" id="more" hidden></button>
     <p class="note" id="note"></p>
   </div>
 </div>

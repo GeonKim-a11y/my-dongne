@@ -158,7 +158,7 @@ def probe(session, key, base):
         for extra in ({}, {"returnType": "JSON"}, {"type": "json"}):
             try:
                 r = session.get(url, params={"serviceKey": key, "pageNo": 1, "numOfRows": 2, **extra}, timeout=40)
-                print(f"[{r.status_code}] {url} {extra or ''}\n   {r.text[:300]!r}")
+                print(f"[{r.status_code}] {url} {extra or ''}\n   {r.text[:(1800 if r.status_code == 200 else 300)]!r}")
             except Exception as e:
                 print(f"[ERR] {url} {extra or ''}: {e}")
 

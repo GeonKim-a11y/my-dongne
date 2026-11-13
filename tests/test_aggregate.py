@@ -340,3 +340,11 @@ def test_cctv_real_api_fields():
             "LCTN_LOTNO_ADDR": "서울특별시 강남구 역삼동 1-1", "LCTN_ROAD_NM_ADDR": "서울특별시 강남구 테헤란로",
             "WGS84_LAT": "37.5", "WGS84_LOT": "127.03"}
     assert fc.to_point(real, ["강남구"]) == [127.03, 37.5, "B", 2]
+
+
+def test_cctv_agency_name_fallback_when_address_empty():
+    fc = _cctv_mod()
+    row = {"MNG_INST_NM": "서울특별시 성동구청", "LCTN_ROAD_NM_ADDR": "", "LCTN_LOTNO_ADDR": "", "CAM_CNTOM": "1",
+           "INSTL_PRPS_SE_NM": "생활방범", "WGS84_LAT": "37.55", "WGS84_LOT": "127.04"}
+    assert fc.to_point(row, ["성동구"]) == [127.04, 37.55, "B", 1]
+    assert fc.to_point(row, ["강남구"]) is None

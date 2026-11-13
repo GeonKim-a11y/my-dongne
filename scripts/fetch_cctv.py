@@ -70,7 +70,9 @@ def classify(purpose):
 
 def to_point(item, active_gu):
     """원시 item -> [lng, lat, 분류, 대수] 또는 None. 주소에 서울+활성 구가 있어야 한다."""
-    addr = " ".join(str(v) for k, v in item.items() if "adr" in str(k).lower() or "주소" in str(k) or "addr" in str(k).lower())
+    # 주소가 비어 있는 행이 많아서(예: 성동구 1,314건 중 주소가 있는 건 3건) 관리기관명(서울특별시 ○○구청)도 지역 판별에 쓴다.
+    addr = " ".join(str(v) for k, v in item.items()
+                    if any(t in str(k).lower() for t in ("adr", "addr", "mng_inst_nm", "inst_nm")) or "주소" in str(k) or "관리기관명" in str(k))
     if "서울" not in addr or not any(g in addr for g in active_gu):
         return None
     try:
@@ -154,10 +156,10 @@ def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_p
 
 def fetch_regions(session, key, url, gus, rows=1000, **kw):
     """구마다 '주소에 구 이름이 들어간' CCTV만 서버에서 걸러 받는다 (전체 38만 건은 100건씩이라 1시간 넘게 걸림).
-    도로명주소·지번주소 두 조건으로 받아 관리번호로 중복을 없앤다. 필터 형식: cond[필드::LIKE]=값"""
+    관리기관명·도로명주소·지번주소 세 조건으로 받아 관리번호로 중복을 없앤다(주소가 빈 행이 많아 관리기관명 조건이 필요). 필터 형식: cond[필드::LIKE]=값"""
     pts, seen_total, ids = [], 0, set()
     for gu in gus:
-        for field in ("LCTN_ROAD_NM_ADDR", "LCTN_LOTNO_ADDR"):
+        for field in ("MNG_INST_NM", "LCTN_ROAD_NM_ADDR", "LCTN_LOTNO_ADDR"):
             cond = {f"cond[{field}::LIKE]": f"서울특별시 {gu}"}
             got, seen = fetch_all(session, key, url, rows=rows, active_gu=gus, cond=cond, seen_ids=ids, **kw)
             pts.extend(got)

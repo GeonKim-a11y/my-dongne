@@ -4,6 +4,8 @@
 출처: 공공데이터포털 '행정안전부_CCTV정보 조회서비스' (전국CCTV표준데이터를 API로 제공)
   * 실제 응답 필드(확인됨): WGS84_LAT, WGS84_LOT(경도), INSTL_PRPS_SE_NM(설치목적), CAM_CNTOM(대수), LCTN_LOTNO_ADDR/LCTN_ROAD_NM_ADDR(주소).
     다른 표기(한글 CSV 등)도 이름 끝/일부로 찾는다.
+  * 서버 필터가 된다(확인됨): cond[LCTN_ROAD_NM_ADDR::LIKE]=서울특별시 강남구. 구별로 걸러 받는다.
+  * 한 번에 100건만 주므로 전체(약 38만 건)를 받으면 1시간이 넘는다.
   * JSON/XML 응답을 모두 처리한다.
   * --probe : 실제 요청을 여러 형태로 시험하고 상태·응답 앞부분을 출력한다 (주소/파라미터를 확인할 때).
   * --csv   : 포털에서 받은 표준데이터 CSV(utf-8/cp949)로 만든다 (용량이 커서 GitHub 웹 업로드는 어렵다).
@@ -113,11 +115,11 @@ def parse_any(text):
     return code, total or len(items), items
 
 
-def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_pages=5000, verbose=True):
+def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_pages=5000, verbose=True, cond=None, seen_ids=None):
     """끝까지 받으면서 곧바로 서울 활성 구만 걸러 메모리를 아낀다. 서버 페이지 크기가 달라도 totalCount 로 끝낸다."""
     pts, seen, page = [], 0, 1
     while page <= max_pages:
-        params = {"serviceKey": key, "numOfRows": rows, "pageNo": page}
+        params = {"serviceKey": key, "numOfRows": rows, "pageNo": page, "returnType": "JSON", **(cond or {})}
         for attempt in range(retries):
             try:
                 r = session.get(url, params=params, timeout=60)
@@ -132,6 +134,11 @@ def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_p
         if code not in ("00", "000", "0"):
             raise RuntimeError(f"API 오류 코드 {code}. 인증키와 'CCTV정보 조회서비스' 활용신청 승인 상태를 확인하세요. 응답: {r.text[:200]}")
         for i in items:
+            mid = find_end(i, "mng_no")
+            if seen_ids is not None and mid:
+                if mid in seen_ids:
+                    continue
+                seen_ids.add(mid)
             p = to_point(i, active_gu)
             if p:
                 pts.append(p)
@@ -143,6 +150,20 @@ def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_p
         page += 1
         time.sleep(0.1)
     return pts, seen
+
+
+def fetch_regions(session, key, url, gus, rows=1000, **kw):
+    """구마다 '주소에 구 이름이 들어간' CCTV만 서버에서 걸러 받는다 (전체 38만 건은 100건씩이라 1시간 넘게 걸림).
+    도로명주소·지번주소 두 조건으로 받아 관리번호로 중복을 없앤다. 필터 형식: cond[필드::LIKE]=값"""
+    pts, seen_total, ids = [], 0, set()
+    for gu in gus:
+        for field in ("LCTN_ROAD_NM_ADDR", "LCTN_LOTNO_ADDR"):
+            cond = {f"cond[{field}::LIKE]": f"서울특별시 {gu}"}
+            got, seen = fetch_all(session, key, url, rows=rows, active_gu=gus, cond=cond, seen_ids=ids, **kw)
+            pts.extend(got)
+            seen_total += seen
+            print(f"  {gu} {field}: 응답 {seen}건 -> 누적 지점 {len(pts)}", flush=True)
+    return pts, seen_total
 
 
 def merge(points):
@@ -227,7 +248,7 @@ def main():
         if args.probe:
             probe_filters(s, key, args.url)
             return probe(s, key, args.url)
-        pts, seen = fetch_all(s, key, args.url, rows=args.rows, active_gu=active, max_pages=args.max_pages)
+        pts, seen = fetch_regions(s, key, args.url, active, rows=args.rows, max_pages=args.max_pages)
     print(f"전체 {seen}건 확인, 활성 구 {len(pts)}건")
     out = build(pts)
     if not out["points"]:

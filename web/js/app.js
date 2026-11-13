@@ -30,7 +30,7 @@ let PARK = null;       // 공원 {points:[lng,lat,분류,이름,면적㎡], samp
 let FEATURES = null;   // 행정동 경계 feature 배열 또는 null
 let probe = null;      // 지도에서 찍은 분석 지점 {lng, lat}
 const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원" };
-const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wPark: 2, radius: 1000, showPts: false, showParks: false };
+const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false };
 let densityCache = { key: "", map: null };
 let parkCache = null;
 
@@ -124,8 +124,12 @@ function parkByUnit(units) {
   if (!PARK || !FEATURES) return out;
   if (!parkCache) parkCache = countPerFeature(FEATURES, PARK.points, new Set(["N", "S", "O"]), 4);
   const items = units.filter((u) => u.feature).map((u) => ({ u, m: parkCache.get(u.feature) }));
-  const scores = percentileScores(items.map((x) => x.m.sumPerKm2));
-  items.forEach((x, i) => out.set(x.u.key, { count: x.m.count, area: x.m.sum, ratio: x.m.area > 0 ? x.m.sum / (x.m.area * 1e6) : 0, score: scores[i] }));
+  const sArea = percentileScores(items.map((x) => x.m.sumPerKm2));   // 면적 비율 기준
+  const sCnt = percentileScores(items.map((x) => x.m.perKm2));        // 개수(곳/㎢) 기준
+  items.forEach((x, i) => out.set(x.u.key, {
+    count: x.m.count, perKm2: x.m.perKm2, area: x.m.sum, ratio: x.m.area > 0 ? x.m.sum / (x.m.area * 1e6) : 0,
+    scoreArea: sArea[i], scoreCnt: sCnt[i],
+  }));
   return out;
 }
 
@@ -141,8 +145,10 @@ function render() {
   const med = medicalByUnit(units);
   const useMed = med.size > 0 && sel.wMed > 0;
   const park = parkByUnit(units);
-  const usePark = park.size > 0 && sel.wPark > 0;
-  const wB = sel.wBudget, wM = useMed ? sel.wMed : 0, wP = usePark ? sel.wPark : 0;
+  const hasPark = park.size > 0;
+  const wPA = hasPark ? sel.wParkArea : 0, wPC = hasPark ? sel.wParkCnt : 0;
+  const usePark = wPA + wPC > 0;
+  const wB = sel.wBudget, wM = useMed ? sel.wMed : 0;
   const budget = budgetInMan();
 
   const rows = units.map((u) => {
@@ -151,7 +157,7 @@ function render() {
     const pk = park.get(u.key) || null;
     let total = null;
     if (ev.status === "ok") {
-      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.score : null, wP]].filter(([v, w]) => v !== null && w > 0);
+      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC]].filter(([v, w]) => v !== null && w > 0);
       const wsum = parts.reduce((a, [, w]) => a + w, 0);
       total = wsum ? Math.round(parts.reduce((a, [v, w]) => a + v * w, 0) / wsum) : ev.score;
     }
@@ -168,7 +174,7 @@ function render() {
     const bits = [`가격 ${priceText(r)}`];
     if (r.ev.score !== null) bits.push(`예산 ${r.ev.score}점`);
     if (r.m) bits.push(`의료기관 ${r.m.count}곳 (${r.m.perKm2.toFixed(0)}곳/㎢, ${r.m.score}점)`);
-    if (r.pk) bits.push(`공원 ${r.pk.count}곳 · 면적 비율 ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}% (${r.pk.score}점)`);
+    if (r.pk) bits.push(`공원 ${r.pk.count}곳 (면적 비율 ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}% ${r.pk.scoreArea}점 · 개수 ${r.pk.scoreCnt}점)`);
     return bits.join(" · ");
   });
   showPoints(HOSP && HOSP.points, sel.cats, sel.showPts);
@@ -176,7 +182,7 @@ function render() {
 
   $("sum").textContent =
     `예산에 맞는 동네 ${ok.length}곳` +
-    (useMed || usePark ? ` · 예산 ${wB}${useMed ? ` : 의료 ${wM}` : ""}${usePark ? ` : 공원 ${wP}` : ""} 비율` : "");
+    (useMed || usePark ? ` · 예산 ${wB}${useMed ? ` : 의료 ${wM}` : ""}${wPA ? ` : 공원면적 ${wPA}` : ""}${wPC ? ` : 공원개수 ${wPC}` : ""} 비율` : "");
   $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} · 거래 데이터가 있는 ${totalN}곳 중`;
 
   const list = $("list");
@@ -192,7 +198,7 @@ function render() {
     const chips = el("div", "chips");
     if (r.ev.score !== null) chips.appendChild(el("span", "mini", `예산 ${r.ev.score}`));
     if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
-    if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 ${r.pk.score} · ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}%`));
+    if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 면적 ${r.pk.scoreArea} · 개수 ${r.pk.scoreCnt} (${r.pk.count}곳)`));
     mid.appendChild(chips);
     const sc = el("div", "score");
     sc.appendChild(el("b", "", r.total === null ? "-" : String(r.total)));
@@ -212,7 +218,7 @@ function render() {
       ? "월세는 보증금과 월세를 각각 동네 중앙값과 비교하고, 더 빠듯한 쪽으로 여유율을 계산합니다. "
       : "예산 점수: 동네 중앙값과 예산을 비교해 여유 50% 이상이면 100점으로 환산합니다. 예산을 넘으면 제외됩니다. ") +
     (useMed ? "의료 점수: 행정동 안의 의료기관 수를 면적(㎢)으로 나눈 밀도를 서울 6개 구 행정동끼리 비교한 백분위(0~100)입니다. " : "") +
-    (usePark ? "공원 점수: 행정동 안 공원 면적을 동 면적으로 나눈 비율의 백분위입니다(공원은 중심점 기준이라 큰 공원은 한 동에 몰려 계산됩니다). " : "") +
+    (usePark ? "공원 면적 점수: 행정동 안 공원 면적 / 동 면적의 백분위, 공원 개수 점수: 행정동 안 공원 수 / 동 면적(곳/㎢)의 백분위입니다. 공원은 중심점 기준이라 큰 공원은 한 동에 몰려 계산됩니다. " : "") +
     "종합 점수는 가중치 비율의 평균입니다. 가격은 법정동 단위라 한 법정동에 여러 행정동이 속하면 같은 값을 씁니다.";
   renderProbe();
 }
@@ -288,7 +294,8 @@ function buildControls() {
     $("showPts").addEventListener("input", (e) => { sel.showPts = e.target.checked; render(); });
   }
   if (PARK) {
-    mk("wPark", "wPark", (v) => String(v));
+    mk("wParkArea", "wParkArea", (v) => String(v));
+    mk("wParkCnt", "wParkCnt", (v) => String(v));
     $("showParks").addEventListener("input", (e) => { sel.showParks = e.target.checked; render(); });
   }
 }

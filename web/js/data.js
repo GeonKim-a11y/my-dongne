@@ -36,3 +36,16 @@ export async function loadParks() {
   }
   return null;
 }
+
+// CCTV 위치·대수. 실데이터(cctv.json) 우선, 없으면 가상 샘플, 둘 다 없으면 null.
+export async function loadCctv() {
+  for (const url of ["data/cctv.json", "data/cctv.sample.json"]) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return await r.json();
+    } catch (e) {
+      /* 다음 후보로 */
+    }
+  }
+  return null;
+}

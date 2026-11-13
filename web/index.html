@@ -116,6 +116,13 @@ details[open] summary::after{content:"－"}
         </div>
         <label class="chk"><input type="checkbox" id="showParks"> 공원 위치를 지도에 초록 점으로 보기</label>
       </div>
+      <div id="safeControls" hidden>
+        <div style="margin-top:16px">
+          <label><span>안전(CCTV) 중요도</span><span class="v" id="wSafeV"></span></label>
+          <input type="range" id="wSafe" min="0" max="5" step="1">
+        </div>
+        <label class="chk"><input type="checkbox" id="showCctv"> CCTV 위치를 지도에 보라색 점으로 보기</label>
+      </div>
       <div id="probeControls" hidden style="margin-top:16px">
         <label><span>지도에서 찍은 곳의 분석 반경</span><span class="v" id="radiusV"></span></label>
         <input type="range" id="radius" min="300" max="3000" step="100">

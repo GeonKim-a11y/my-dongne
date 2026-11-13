@@ -4,6 +4,7 @@ let layer = null;
 let boundary = null;
 let pointLayer = null;
 let parkLayer = null;
+let cctvLayer = null;
 let probeLayer = null;
 let onProbeCb = null;
 let unitRows = new Map();
@@ -132,4 +133,15 @@ export function showParks(points, show) {
     L.circleMarker([p[1], p[0]], { renderer: canvas, radius: Math.max(3, Math.min(11, Math.sqrt(p[4]) / 30)), weight: 1, color: "#fff", fillColor: "#1fa86b", fillOpacity: 0.75 })
       .bindTooltip(`${esc(p[3] || "공원")} · ${Math.round(p[4]).toLocaleString()}㎡`)));
   parkLayer.addTo(map);
+}
+
+/** CCTV 위치를 보라색 작은 점으로. 점이 많아 canvas 로 그린다. */
+export function showCctv(points, cats, show) {
+  if (!map) return;
+  if (cctvLayer) { map.removeLayer(cctvLayer); cctvLayer = null; }
+  if (!show || !points) return;
+  const canvas = L.canvas({ padding: 0.3 });
+  cctvLayer = L.layerGroup(points.filter((p) => cats.has(p[2])).map((p) =>
+    L.circleMarker([p[1], p[0]], { renderer: canvas, radius: Math.min(5, 1.5 + p[3] * 0.4), weight: 0, fillColor: "#7c3aed", fillOpacity: 0.55, interactive: false })));
+  cctvLayer.addTo(map);
 }

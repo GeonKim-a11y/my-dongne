@@ -97,3 +97,8 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 - 수집: `python scripts/fetch_parks.py` (API) 또는 `--csv 파일.csv` (포털에서 받은 '전국도시공원정보표준데이터' CSV) -> `web/data/parks.json`. 묘지공원은 제외한다. API 주소·필드명은 문서 기준 추정이라 `--url`로 바꿀 수 있고, 안 되면 CSV를 `data/parks_source.csv`로 올리고 `update-parks` 워크플로를 실행하면 된다.
 - 점수: 행정동 안 공원 면적 / 동 면적 의 백분위(0~100). 공원은 점(중심 좌표) 하나로만 있어서, 여러 동에 걸친 큰 공원은 한 동에 몰려 계산된다(한계).
 - 승인·수집 전에는 가상 샘플(`parks.sample.json`)이 쓰이고 화면에 경고가 뜬다.
+
+## 안전(CCTV) 분석
+- 수집: `python scripts/fetch_cctv.py` -> `web/data/cctv.json` (API: 행정안전부_CCTV정보 조회서비스, 활용신청 필요). 주소가 맞는지 보려면 Actions의 `update-cctv`를 probe=true 로 실행한다. 같은 좌표는 합치고 분류는 방범·안전(B), 어린이보호(K), 교통(T), 그 밖(O)이다.
+- 점수: 방범·어린이보호 목적 카메라 대수 / 동 면적(㎢)의 백분위. 지자체가 직접 입력하는 데이터라 구마다 입력 수준이 달라 구별 차이를 그대로 안전도로 해석하면 안 된다.
+- 승인·수집 전에는 가상 샘플(`cctv.sample.json`)이 쓰이고 화면에 경고가 뜬다.

@@ -301,3 +301,34 @@ def test_park_build_dedup(tmp_path):
     p = tmp_path / "p.csv"
     p.write_text("공원명,공원구분,소재지도로명주소,위도,경도,공원면적\n나공원,소공원,서울특별시 강남구 2,37.5,127.05,500\n", encoding="cp949")
     assert fp.read_csv(p)[0]["공원명"] == "나공원"
+
+
+# ---- CCTV 수집 ----
+def _cctv_mod():
+    import importlib.util, pathlib, sys
+    d = pathlib.Path(__file__).resolve().parent.parent / "scripts"
+    sys.path.insert(0, str(d))
+    spec = importlib.util.spec_from_file_location("fc", d / "fetch_cctv.py")
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+
+def test_cctv_point_fields_and_classify():
+    fc = _cctv_mod()
+    ko = {"소재지도로명주소": "서울특별시 강남구 테헤란로 1", "설치목적구분": "생활방범", "카메라대수": "3", "WGS84위도": "37.5", "WGS84경도": "127.03"}
+    assert fc.to_point(ko, ["강남구"]) == [127.03, 37.5, "B", 3]
+    en = {"rdnmadr": "서울특별시 마포구 1", "installPurpose": "어린이보호", "cmrCnt": "1", "lat": "37.55", "lon": "126.92"}
+    assert fc.to_point(en, ["마포구"])[2] == "K"
+    assert fc.to_point(ko, ["마포구"]) is None
+    assert fc.to_point({**ko, "WGS84위도": "0", "WGS84경도": "0"}, ["강남구"]) is None
+    assert fc.to_point({**ko, "카메라대수": ""}, ["강남구"])[3] == 1
+    assert fc.classify("불법주정차단속") == "T" and fc.classify("기타") == "O"
+
+
+def test_cctv_parse_json_and_xml_and_merge():
+    fc = _cctv_mod()
+    js = '{"response":{"header":{"resultCode":"00"},"body":{"items":{"item":[{"a":1},{"a":2}]},"totalCount":2}}}'
+    assert fc.parse_any(js) == ("00", 2, [{"a": 1}, {"a": 2}])
+    xml = "<response><header><resultCode>00</resultCode></header><body><items><item><a>1</a></item></items><totalCount>1</totalCount></body></response>"
+    assert fc.parse_any(xml)[1] == 1
+    assert fc.merge([[127.0, 37.5, "B", 1], [127.0, 37.5, "B", 2], [127.0, 37.5, "K", 1]]) == [[127.0, 37.5, "B", 3], [127.0, 37.5, "K", 1]]

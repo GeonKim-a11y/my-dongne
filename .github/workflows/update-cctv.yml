@@ -1,0 +1,30 @@
+# CCTV 위치를 따로 갱신한다 (수동 실행 전용). probe 를 켜면 API 주소/응답을 시험만 하고 파일은 만들지 않는다.
+name: update-cctv
+on:
+  workflow_dispatch:
+    inputs:
+      probe:
+        description: "true 면 API 주소/응답 형태만 시험 (파일 갱신 없음)"
+        default: "false"
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - env:
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.probe }}" = "true" ]; then python scripts/fetch_cctv.py --probe; else python scripts/fetch_cctv.py; fi
+      - run: |
+          git config user.name "data-bot"
+          git config user.email "data-bot@users.noreply.github.com"
+          git add web/data/cctv.json 2>/dev/null || true
+          if git diff --staged --quiet; then echo "변경 없음"; else git commit -m "data: CCTV 갱신 $(date -u +%F)"; git pull --rebase -q; git push; fi

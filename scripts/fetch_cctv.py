@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+"""서울 CCTV 위치 수집 -> web/data/cctv.json (나의동네찾기, 안전 지표)
+
+출처: 공공데이터포털 '행정안전부_CCTV정보 조회서비스' (전국CCTV표준데이터를 API로 제공)
+  * 이 API의 요청/응답 필드 명세가 페이지에 글로 없어서(이미지) 필드를 이름의 일부(위도/lat, 경도/lon, 목적, 대수)로 찾는다.
+  * JSON/XML 응답을 모두 처리한다.
+  * --probe : 실제 요청을 여러 형태로 시험하고 상태·응답 앞부분을 출력한다 (주소/파라미터를 확인할 때).
+  * --csv   : 포털에서 받은 표준데이터 CSV(utf-8/cp949)로 만든다 (용량이 커서 GitHub 웹 업로드는 어렵다).
+점 하나는 [경도, 위도, 분류, 카메라대수]. 같은 좌표는 합친다.
+분류: B 방범·안전, K 어린이보호, T 교통(단속·정보), O 그 밖.
+"""
+import argparse
+import csv
+import json
+import os
+import sys
+import time
+from datetime import datetime
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from fetch_prices import load_env, load_regions, parse_response  # noqa: E402
+
+URL = "https://apis.data.go.kr/1741000/cctv_info/info"
+CAT_LABEL = {"B": "방범·안전", "K": "어린이보호", "T": "교통(단속·정보)", "O": "그 밖"}
+
+
+def find(item, *subs):
+    """키 이름에 subs 중 하나가 들어 있는 첫 값을 돌려준다 (대소문자 무시)."""
+    for k, v in item.items():
+        lk = str(k).lower()
+        if any(s in lk for s in subs) and v not in ("", None):
+            return v
+    return ""
+
+
+def classify(purpose):
+    p = str(purpose)
+    if "어린이" in p or "보호구역" in p:
+        return "K"
+    if "방범" in p or "범죄" in p or "안전" in p or "재난" in p:
+        return "B"
+    if "교통" in p or "주정차" in p or "과속" in p or "단속" in p:
+        return "T"
+    return "O"
+
+
+def to_point(item, active_gu):
+    """원시 item -> [lng, lat, 분류, 대수] 또는 None. 주소에 서울+활성 구가 있어야 한다."""
+    addr = " ".join(str(v) for k, v in item.items() if "adr" in str(k).lower() or "주소" in str(k) or "addr" in str(k).lower())
+    if "서울" not in addr or not any(g in addr for g in active_gu):
+        return None
+    try:
+        lat = float(find(item, "위도", "lat"))
+        lng = float(find(item, "경도", "lon", "lng"))
+    except ValueError:
+        return None
+    if not (126.7 < lng < 127.3 and 37.4 < lat < 37.8):
+        return None
+    try:
+        n = max(1, int(float(str(find(item, "대수", "cnt", "count") or 1).replace(",", ""))))
+    except ValueError:
+        n = 1
+    return [round(lng, 5), round(lat, 5), classify(find(item, "목적", "purp")), n]
+
+
+def parse_any(text):
+    """XML이면 parse_response, JSON이면 안에서 dict 리스트와 totalCount를 찾는다. -> (code, total, items)"""
+    t = text.lstrip()
+    if not t.startswith(("{", "[")):
+        return parse_response(text)
+    data = json.loads(t)
+    items, total, code = [], 0, "00"
+
+    def walk(o):
+        nonlocal items, total, code
+        if isinstance(o, dict):
+            for k, v in o.items():
+                lk = k.lower()
+                if lk == "totalcount":
+                    try: total = int(v)
+                    except (TypeError, ValueError): pass
+                elif lk == "resultcode":
+                    code = str(v)
+                elif isinstance(v, list) and v and isinstance(v[0], dict) and not items:
+                    items = v
+                else:
+                    walk(v)
+        elif isinstance(o, list) and o and isinstance(o[0], dict) and not items:
+            items = o
+    walk(data)
+    return code, total or len(items), items
+
+
+def fetch_all(session, key, url=URL, rows=1000, retries=3, active_gu=None, max_pages=5000):
+    """끝까지 받으면서 곧바로 서울 활성 구만 걸러 메모리를 아낀다. 서버 페이지 크기가 달라도 totalCount 로 끝낸다."""
+    pts, seen, page = [], 0, 1
+    while page <= max_pages:
+        params = {"serviceKey": key, "numOfRows": rows, "pageNo": page}
+        for attempt in range(retries):
+            try:
+                r = session.get(url, params=params, timeout=60)
+                r.raise_for_status()
+                code, total, items = parse_any(r.text)
+                break
+            except Exception as e:
+                body = getattr(locals().get("r"), "text", "")[:200]
+                if attempt == retries - 1:
+                    raise RuntimeError(f"페이지 {page} 실패: {e} {body}") from e
+                time.sleep(1.5 * (attempt + 1))
+        if code not in ("00", "000", "0"):
+            raise RuntimeError(f"API 오류 코드 {code}. 인증키와 'CCTV정보 조회서비스' 활용신청 승인 상태를 확인하세요. 응답: {r.text[:200]}")
+        for i in items:
+            p = to_point(i, active_gu)
+            if p:
+                pts.append(p)
+        seen += len(items)
+        if not items or seen >= total:
+            break
+        page += 1
+        time.sleep(0.1)
+    return pts, seen
+
+
+def merge(points):
+    """같은 좌표·분류는 대수를 합친다."""
+    acc = {}
+    for lng, lat, cat, n in points:
+        k = (lng, lat, cat)
+        acc[k] = acc.get(k, 0) + n
+    return [[k[0], k[1], k[2], n] for k, n in acc.items()]
+
+
+def read_csv(path):
+    raw = Path(path).read_bytes()
+    for enc in ("utf-8-sig", "cp949"):
+        try:
+            return list(csv.DictReader(raw.decode(enc).splitlines()))
+        except UnicodeDecodeError:
+            continue
+    sys.exit("CSV 인코딩을 읽을 수 없습니다.")
+
+
+def build(points):
+    pts = merge(points)
+    cams, spots = {}, {}
+    for _, _, c, n in pts:
+        cams[c] = cams.get(c, 0) + n
+        spots[c] = spots.get(c, 0) + 1
+    return {"generated_at": datetime.now().isoformat(timespec="seconds"), "source": "행정안전부 CCTV정보",
+            "sample": False, "categories": CAT_LABEL, "cameras": cams, "spots": spots, "points": pts}
+
+
+def probe(session, key, base):
+    """주소/파라미터를 모를 때: 여러 후보를 시험해 상태와 응답 앞부분을 보여 준다."""
+    root = base.rsplit("/", 1)[0]
+    for url in dict.fromkeys([base, root, root + "/getCctvInfo", root + "/cctv", root + "/list"]):
+        for extra in ({}, {"returnType": "JSON"}, {"type": "json"}):
+            try:
+                r = session.get(url, params={"serviceKey": key, "pageNo": 1, "numOfRows": 2, **extra}, timeout=40)
+                print(f"[{r.status_code}] {url} {extra or ''}\n   {r.text[:300]!r}")
+            except Exception as e:
+                print(f"[ERR] {url} {extra or ''}: {e}")
+
+
+def main():
+    root = Path(__file__).resolve().parent.parent
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--url", default=URL)
+    ap.add_argument("--csv")
+    ap.add_argument("--probe", action="store_true")
+    ap.add_argument("--out", default=str(root / "web" / "data" / "cctv.json"))
+    args = ap.parse_args()
+    active, _ = load_regions(root)
+    import requests
+    if args.csv:
+        pts = [p for p in (to_point(i, active) for i in read_csv(args.csv)) if p]
+        seen = len(pts)
+    else:
+        load_env(root / ".env")
+        key = os.getenv("PUBLIC_DATA_API_KEY")
+        if not key:
+            sys.exit(".env 에 PUBLIC_DATA_API_KEY 를 설정하세요.")
+        s = requests.Session()
+        if args.probe:
+            return probe(s, key, args.url)
+        pts, seen = fetch_all(s, key, args.url, active_gu=active)
+    print(f"전체 {seen}건 확인, 활성 구 {len(pts)}건")
+    out = build(pts)
+    if not out["points"]:
+        sys.exit("활성 구의 CCTV가 0건입니다. 응답 필드(주소/위도/경도/설치목적/대수)를 --probe 로 확인하세요. 파일은 갱신하지 않았습니다.")
+    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"완료: 지점 {len(out['points'])}곳, 카메라 {out['cameras']} -> {args.out}")
+
+
+if __name__ == "__main__":
+    main()

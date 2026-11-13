@@ -174,6 +174,23 @@ def build(points):
             "sample": False, "categories": CAT_LABEL, "cameras": cams, "spots": spots, "points": pts}
 
 
+def probe_filters(session, key, base):
+    """서버 쪽 필터(지역 조건) 파라미터가 먹는지 totalCount 로 확인한다. 전체는 약 38만 건, 한 번에 100건뿐이라 필터가 필요하다."""
+    variants = [
+        {}, {"OPN_ATMY_GRP_CD": "3220000"}, {"cond[OPN_ATMY_GRP_CD::EQ]": "3220000"},
+        {"cond[MNG_INST_NM::LIKE]": "서울특별시 강남구"}, {"cond[MNG_INST_NM::EQ]": "서울특별시 강남구"},
+        {"cond[LCTN_ROAD_NM_ADDR::LIKE]": "서울특별시 강남구"}, {"MNG_INST_NM": "서울특별시 강남구"},
+    ]
+    for extra in variants:
+        try:
+            r = session.get(base, params={"serviceKey": key, "pageNo": 1, "numOfRows": 2, "returnType": "JSON", **extra}, timeout=40)
+            code, total, items = parse_any(r.text)
+            first = (items[0].get("MNG_INST_NM"), items[0].get("OPN_ATMY_GRP_CD")) if items else None
+            print(f"[{r.status_code}] {extra or '(필터 없음)'} -> total={total} 첫행={first}")
+        except Exception as e:
+            print(f"[ERR] {extra}: {e}")
+
+
 def probe(session, key, base):
     """주소/파라미터를 모를 때: 여러 후보를 시험해 상태와 응답 앞부분을 보여 준다."""
     root = base.rsplit("/", 1)[0]
@@ -208,6 +225,7 @@ def main():
             sys.exit(".env 에 PUBLIC_DATA_API_KEY 를 설정하세요.")
         s = requests.Session()
         if args.probe:
+            probe_filters(s, key, args.url)
             return probe(s, key, args.url)
         pts, seen = fetch_all(s, key, args.url, rows=args.rows, active_gu=active, max_pages=args.max_pages)
     print(f"전체 {seen}건 확인, 활성 구 {len(pts)}건")

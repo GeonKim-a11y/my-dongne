@@ -3,6 +3,7 @@ let map = null;
 let layer = null;
 let boundary = null;
 let pointLayer = null;
+let parkLayer = null;
 let probeLayer = null;
 let onProbeCb = null;
 let unitRows = new Map();
@@ -119,4 +120,16 @@ export function showProbe(point, meters) {
     L.circle([point.lat, point.lng], { radius: meters, color: "#1b64da", weight: 2, fillColor: "#3182f6", fillOpacity: 0.12, interactive: false }),
     L.circleMarker([point.lat, point.lng], { radius: 5, color: "#fff", weight: 2, fillColor: "#1b64da", fillOpacity: 1, interactive: false }),
   ]).addTo(map);
+}
+
+/** 공원 위치를 초록 원으로 (면적이 클수록 크게). */
+export function showParks(points, show) {
+  if (!map) return;
+  if (parkLayer) { map.removeLayer(parkLayer); parkLayer = null; }
+  if (!show || !points) return;
+  const canvas = L.canvas({ padding: 0.3 });
+  parkLayer = L.layerGroup(points.map((p) =>
+    L.circleMarker([p[1], p[0]], { renderer: canvas, radius: Math.max(3, Math.min(11, Math.sqrt(p[4]) / 30)), weight: 1, color: "#fff", fillColor: "#1fa86b", fillOpacity: 0.75 })
+      .bindTooltip(`${esc(p[3] || "공원")} · ${Math.round(p[4]).toLocaleString()}㎡`)));
+  parkLayer.addTo(map);
 }

@@ -36,3 +36,11 @@ test("반경 안의 점", () => {
   const pts = [[127, 37.5, "C", "near"], [127, 37.52, "C", "far"]];
   assert.equal(withinRadius(pts, 127, 37.5, 500, new Set(["C"])).length, 1);
 });
+
+test("가중치(면적) 합계", () => {
+  const f = { geometry: sq };
+  const pts = [[127.005, 37.505, "N", "a", 3000], [127.002, 37.502, "S", "b", 500]];
+  const r = countPerFeature([f], pts, new Set(["N", "S"]), 4).get(f);
+  assert.equal(r.sum, 3500);
+  assert.ok(r.sumPerKm2 > 3500);
+});

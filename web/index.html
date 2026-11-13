@@ -91,22 +91,30 @@ details[open] summary::after{content:"－"}
     </div>
     <details id="more-opts">
       <summary>더 자세한 조건</summary>
+      <div id="commonControls" hidden>
+        <div class="sec">점수에 반영하는 비율 (0이면 제외)</div>
+        <label><span>예산 중요도</span><span class="v" id="wBudgetV"></span></label>
+        <input type="range" id="wBudget" min="0" max="5" step="1">
+      </div>
       <div id="medControls" hidden>
-        <div class="sec">의료기관 종류 (점수에 반영)</div>
-        <div class="chips" id="cats"></div>
-        <div style="margin-top:20px">
-          <label><span>예산 중요도</span><span class="v" id="wBudgetV"></span></label>
-          <input type="range" id="wBudget" min="0" max="5" step="1">
-        </div>
         <div style="margin-top:16px">
           <label><span>의료기관 중요도</span><span class="v" id="wMedV"></span></label>
           <input type="range" id="wMed" min="0" max="5" step="1">
         </div>
-        <div style="margin-top:16px">
-          <label><span>지도에서 찍은 곳의 분석 반경</span><span class="v" id="radiusV"></span></label>
-          <input type="range" id="radius" min="300" max="3000" step="100">
-        </div>
+        <div class="sec">의료기관 종류</div>
+        <div class="chips" id="cats"></div>
         <label class="chk"><input type="checkbox" id="showPts"> 의료기관 위치를 지도에 점으로 보기</label>
+      </div>
+      <div id="parkControls" hidden>
+        <div style="margin-top:16px">
+          <label><span>공원 중요도</span><span class="v" id="wParkV"></span></label>
+          <input type="range" id="wPark" min="0" max="5" step="1">
+        </div>
+        <label class="chk"><input type="checkbox" id="showParks"> 공원 위치를 지도에 초록 점으로 보기</label>
+      </div>
+      <div id="probeControls" hidden style="margin-top:16px">
+        <label><span>지도에서 찍은 곳의 분석 반경</span><span class="v" id="radiusV"></span></label>
+        <input type="range" id="radius" min="300" max="3000" step="100">
       </div>
       <label class="chk"><input type="checkbox" id="showOut"> 예산을 넘는 동네도 흐리게 보기</label>
       <label class="chk"><input type="checkbox" id="hideLow" checked> 거래가 적은 동네는 빼기</label>

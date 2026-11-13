@@ -1,0 +1,26 @@
+# 공원 데이터만 따로 갱신한다 (수동 실행 전용). API 대신 CSV 파일을 쓰려면 data/parks_source.csv 로 저장소에 올려 두면 그 파일을 우선 사용한다.
+name: update-parks
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - env:
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+        run: |
+          if [ -f data/parks_source.csv ]; then python scripts/fetch_parks.py --csv data/parks_source.csv; else python scripts/fetch_parks.py; fi
+      - run: |
+          git config user.name "data-bot"
+          git config user.email "data-bot@users.noreply.github.com"
+          git add web/data/parks.json
+          if git diff --staged --quiet; then echo "변경 없음"; else git commit -m "data: 공원 갱신 $(date -u +%F)"; git pull --rebase -q; git push; fi

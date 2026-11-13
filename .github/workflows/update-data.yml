@@ -35,12 +35,18 @@ jobs:
           PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
         run: python scripts/fetch_hospitals.py
 
+      - name: 공원 위치·면적 수집 (활용신청이 안 됐거나 API 주소가 다르면 이 단계만 실패하고 넘어감)
+        continue-on-error: true
+        env:
+          PUBLIC_DATA_API_KEY: ${{ secrets.PUBLIC_DATA_API_KEY }}
+        run: python scripts/fetch_parks.py
+
       - name: 변경이 있으면 커밋
         run: |
           git config user.name "data-bot"
           git config user.email "data-bot@users.noreply.github.com"
           git add web/data/market_by_dong.json data/cache
-          git add web/data/hospitals.json 2>/dev/null || true
+          git add web/data/hospitals.json web/data/parks.json 2>/dev/null || true
           if git diff --staged --quiet; then
             echo "변경 없음"
           else

@@ -50,9 +50,9 @@ export function areaKm2(geom) {
 /**
  * 점들을 행정동 폴리곤에 배정해 센다.
  * features: GeoJSON feature 배열, points: [lng, lat, cat, name], cats: 셀 분류 집합
- * 반환: Map(feature -> {count, perKm2, area})
+ * weightIdx: 점 배열에서 합산할 값의 위치(예: 공원 면적). 반환: Map(feature -> {count, sum, perKm2, sumPerKm2, area})
  */
-export function countPerFeature(features, points, cats) {
+export function countPerFeature(features, points, cats, weightIdx = -1) {
   const use = points.filter((p) => cats.has(p[2]));
   const out = new Map();
   for (const f of features) {
@@ -63,12 +63,12 @@ export function countPerFeature(features, points, cats) {
       f._bbox = [x0, y0, x1, y1];
     }
     const [x0, y0, x1, y1] = f._bbox;
-    let count = 0;
+    let count = 0, sum = 0;
     for (const p of use) {
       if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) continue;
-      if (pointInGeom(p[0], p[1], f.geometry)) count++;
+      if (pointInGeom(p[0], p[1], f.geometry)) { count++; if (weightIdx >= 0) sum += Number(p[weightIdx]) || 0; }
     }
-    out.set(f, { count, area, perKm2: area > 0 ? count / area : 0 });
+    out.set(f, { count, sum, area, perKm2: area > 0 ? count / area : 0, sumPerKm2: area > 0 ? sum / area : 0 });
   }
   return out;
 }

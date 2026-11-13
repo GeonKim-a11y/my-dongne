@@ -23,3 +23,16 @@ export async function loadHospitals() {
   }
   return null;
 }
+
+// 공원 위치·면적. 실데이터(parks.json) 우선, 없으면 가상 샘플, 둘 다 없으면 null.
+export async function loadParks() {
+  for (const url of ["data/parks.json", "data/parks.sample.json"]) {
+    try {
+      const r = await fetch(url);
+      if (r.ok) return await r.json();
+    } catch (e) {
+      /* 다음 후보로 */
+    }
+  }
+  return null;
+}

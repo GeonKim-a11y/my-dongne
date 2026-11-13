@@ -56,11 +56,11 @@ def to_point(item, active_gu):
     return [round(lng, 5), round(lat, 5), cat, pick(item, "yadmNm")]
 
 
-def fetch_all(session, key, url=URL, rows=1000, retries=3):
+def fetch_all(session, key, url=URL, rows=1000, retries=3, extra=None):
     """서울 전체 목록을 끝까지 받는다. 서버가 한 번에 주는 개수가 달라도 totalCount 로 끝을 판단한다."""
     out, page = [], 1
     while True:
-        params = {"serviceKey": key, "sidoCd": SEOUL, "numOfRows": rows, "pageNo": page}
+        params = {"serviceKey": key, "numOfRows": rows, "pageNo": page, **({"sidoCd": SEOUL} if extra is None else extra)}
         for attempt in range(retries):
             try:
                 r = session.get(url, params=params, timeout=60)

@@ -269,3 +269,35 @@ def test_hospital_fetch_all_pages_and_error():
     import pytest
     with pytest.raises(RuntimeError):
         fh.fetch_all(S([page([], 0, code="30")]), "k")
+
+
+# ---- 공원 수집 ----
+def _park_mod():
+    import importlib.util, pathlib, sys
+    d = pathlib.Path(__file__).resolve().parent.parent / "scripts"
+    sys.path.insert(0, str(d))
+    spec = importlib.util.spec_from_file_location("fp", d / "fetch_parks.py")
+    m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+    return m
+
+
+def test_park_point_api_and_csv_fields():
+    fp = _park_mod()
+    api = {"parkNm": "서울숲", "parkSe": "근린공원", "rdnmadr": "서울특별시 성동구 뚝섬로 273", "latitude": "37.5444", "longitude": "127.0374", "parkAr": "1,156,498"}
+    assert fp.to_point(api, ["성동구"]) == [127.0374, 37.5444, "N", "서울숲", 1156498]
+    ko = {"공원명": "가어린이공원", "공원구분": "어린이공원", "소재지지번주소": "서울특별시 마포구 도화동 1", "위도": "37.54", "경도": "126.95", "공원면적": "1500"}
+    assert fp.to_point(ko, ["마포구"])[2] == "S"
+    assert fp.to_point(ko, ["성동구"]) is None                          # 비활성 구
+    assert fp.to_point({**ko, "공원구분": "묘지공원"}, ["마포구"]) is None   # 묘지공원 제외
+    assert fp.to_point({**ko, "공원면적": "0"}, ["마포구"]) is None
+    assert fp.to_point({**ko, "소재지지번주소": "부산광역시 마포구"}, ["마포구"]) is None   # 서울이 아님
+
+
+def test_park_build_dedup(tmp_path):
+    fp = _park_mod()
+    a = {"공원명": "가공원", "공원구분": "근린공원", "소재지도로명주소": "서울특별시 강남구 1", "위도": "37.5", "경도": "127.05", "공원면적": "1000"}
+    out = fp.build([a, dict(a)], ["강남구"])
+    assert len(out["points"]) == 1 and out["counts"] == {"N": 1} and out["total_area_m2"] == 1000
+    p = tmp_path / "p.csv"
+    p.write_text("공원명,공원구분,소재지도로명주소,위도,경도,공원면적\n나공원,소공원,서울특별시 강남구 2,37.5,127.05,500\n", encoding="cp949")
+    assert fp.read_csv(p)[0]["공원명"] == "나공원"

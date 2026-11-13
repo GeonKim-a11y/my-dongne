@@ -92,3 +92,8 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 - 계산은 브라우저에서 한다(`web/js/gis.js`): 행정동 폴리곤 안 점 개수(point-in-polygon), 면적당 밀도(개/㎢) -> 백분위 점수, 지도에서 찍은 지점의 반경 분석(haversine).
 - 종합 점수 = (예산 점수 x 예산 가중치 + 의료 점수 x 의료 가중치) / 가중치 합. 예산을 넘는 동네는 제외된다.
 - 응답 필드명(sgguCdNm, clCd, XPos, YPos)과 엔드포인트는 문서 기준이며 실제 응답으로 한 번 확인이 필요하다.
+
+## 공원 분석
+- 수집: `python scripts/fetch_parks.py` (API) 또는 `--csv 파일.csv` (포털에서 받은 '전국도시공원정보표준데이터' CSV) -> `web/data/parks.json`. 묘지공원은 제외한다. API 주소·필드명은 문서 기준 추정이라 `--url`로 바꿀 수 있고, 안 되면 CSV를 `data/parks_source.csv`로 올리고 `update-parks` 워크플로를 실행하면 된다.
+- 점수: 행정동 안 공원 면적 / 동 면적 의 백분위(0~100). 공원은 점(중심 좌표) 하나로만 있어서, 여러 동에 걸친 큰 공원은 한 동에 몰려 계산된다(한계).
+- 승인·수집 전에는 가상 샘플(`parks.sample.json`)이 쓰이고 화면에 경고가 뜬다.

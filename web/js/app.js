@@ -30,7 +30,7 @@ let CCTV = null;       // CCTV {points:[lng,lat,분류,대수], sample, ...} 또
 let PARK = null;       // 공원 {points:[lng,lat,분류,이름,면적㎡], sample, ...} 또는 null
 let FEATURES = null;   // 행정동 경계 feature 배열 또는 null
 let probe = null;      // 지도에서 찍은 분석 지점 {lng, lat}
-const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원" };
+const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원", P: "약국" };
 const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]) };
 let densityCache = { key: "", map: null };
 let parkCache = null;
@@ -309,7 +309,7 @@ function buildControls() {
   if (HOSP) {
     const cats = $("cats");
     cats.replaceChildren();
-    Object.entries(CATS).forEach(([k, label]) => {
+    Object.entries(CATS).filter(([k]) => !HOSP.categories || k in HOSP.categories).forEach(([k, label]) => {   // 데이터에 있는 종류만
       const b = document.createElement("button");
       b.type = "button";
       b.className = "chip" + (sel.cats.has(k) ? " on" : "");

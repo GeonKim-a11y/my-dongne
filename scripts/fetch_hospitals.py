@@ -20,6 +20,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from fetch_prices import load_env, load_regions, parse_response  # noqa: E402
 
 URL = "https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList"
+# 약국정보서비스 (별도 활용신청 필요). 함수 이름의 Parmacy 철자는 원래 API 이름 그대로다.
+PHARMACY_URL = "https://apis.data.go.kr/B551182/pharmacyInfoService/getParmacyBasisList"
 SEOUL = "110000"
 
 # 종별코드 -> 우리 분류. 분류에 없는 코드(보건소 등)는 버린다.
@@ -28,8 +30,9 @@ CAT_OF = {
     "31": "C",                                               # 의원
     "41": "D", "51": "D",                                    # 치과병원, 치과의원
     "92": "K", "93": "K",                                    # 한방병원, 한의원
+    "81": "P",                                               # 약국 (약국정보서비스)
 }
-CAT_LABEL = {"H": "병원급(종합병원·병원·요양병원)", "C": "의원", "D": "치과", "K": "한의원·한방병원"}
+CAT_LABEL = {"H": "병원급(종합병원·병원·요양병원)", "C": "의원", "D": "치과", "K": "한의원·한방병원", "P": "약국"}
 
 
 def pick(item, name):
@@ -41,10 +44,10 @@ def pick(item, name):
     return ""
 
 
-def to_point(item, active_gu):
+def to_point(item, active_gu, force_cat=None):
     """원시 item -> [lng, lat, 분류, 이름] 또는 None."""
     gu = pick(item, "sgguCdNm")
-    cat = CAT_OF.get(pick(item, "clCd"))
+    cat = force_cat or CAT_OF.get(pick(item, "clCd"))
     if gu not in active_gu or not cat:
         return None
     try:
@@ -80,8 +83,8 @@ def fetch_all(session, key, url=URL, rows=1000, retries=3, extra=None):
         time.sleep(0.2)
 
 
-def build(items, active_gu):
-    pts = [p for p in (to_point(i, set(active_gu)) for i in items) if p]
+def build(items, active_gu, force_cat=None):
+    pts = [p for p in (to_point(i, set(active_gu), force_cat) for i in items) if p]
     counts = {}
     for p in pts:
         counts[p[2]] = counts.get(p[2], 0) + 1
@@ -99,6 +102,8 @@ def main():
     root = Path(__file__).resolve().parent.parent
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--url", default=URL)
+    ap.add_argument("--pharmacy-url", default=PHARMACY_URL)
+    ap.add_argument("--no-pharmacy", action="store_true")
     ap.add_argument("--out", default=str(root / "web" / "data" / "hospitals.json"))
     args = ap.parse_args()
     load_env(root / ".env")
@@ -107,7 +112,8 @@ def main():
         sys.exit(".env 에 PUBLIC_DATA_API_KEY 를 설정하세요.")
     active, _ = load_regions(root)
     import requests
-    items = fetch_all(requests.Session(), key, args.url)
+    sess = requests.Session()
+    items = fetch_all(sess, key, args.url)
     print(f"서울 전체 {len(items)}건 수신")
     kinds = {}
     for i in items:   # 종별코드 확인용: 코드 -> (이름, 건수)
@@ -116,7 +122,26 @@ def main():
         kinds[k] = (n, c + 1)
     print("종별코드:", ", ".join(f"{k}={n}({c})" for k, (n, c) in sorted(kinds.items())))
     out = build(items, active)
-    if not out["points"]:
+    if not args.no_pharmacy:
+        # 약국은 별도 API(활용신청 필요). 실패해도 병원 데이터는 저장하고, 이전에 받아 둔 약국이 있으면 그대로 둔다.
+        try:
+            ph = fetch_all(sess, key, args.pharmacy_url)
+            print(f"약국 서울 전체 {len(ph)}건 수신")
+            pp = build(ph, active, force_cat="P")["points"]
+            if not pp:
+                raise RuntimeError("활성 구의 약국이 0건")
+        except Exception as e:
+            print(f"[경고] 약국 수집 실패: {e}")
+            pp = []
+            old = Path(args.out)
+            if old.exists():
+                pp = [p for p in json.loads(old.read_text(encoding="utf-8")).get("points", []) if p[2] == "P"]
+                print(f"       이전 약국 {len(pp)}곳을 유지합니다.")
+        out["points"] += pp
+        out["counts"] = {}
+        for p in out["points"]:
+            out["counts"][p[2]] = out["counts"].get(p[2], 0) + 1
+    if not [p for p in out["points"] if p[2] != "P"]:
         sys.exit("활성 구에 해당하는 의료기관이 0건입니다. 응답 필드(sgguCdNm, clCd, XPos, YPos)를 확인하세요. 파일은 갱신하지 않았습니다.")
     Path(args.out).write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"완료: {len(out['points'])}곳 {out['counts']} -> {args.out}")

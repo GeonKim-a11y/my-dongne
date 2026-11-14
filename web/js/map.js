@@ -98,7 +98,7 @@ export function updateMap(rows, describe) {
   });
 }
 
-const CAT_COLOR = { H: "#c2410c", C: "#2563eb", D: "#7c3aed", K: "#15803d" };
+const CAT_COLOR = { H: "#c2410c", C: "#2563eb", D: "#7c3aed", K: "#15803d", P: "#0891b2" };
 
 /** 의료기관 점 표시. cats: 보여줄 분류 집합, show: false면 숨김 */
 export function showPoints(points, cats, show) {

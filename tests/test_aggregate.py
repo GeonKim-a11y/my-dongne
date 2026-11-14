@@ -348,3 +348,11 @@ def test_cctv_agency_name_fallback_when_address_empty():
            "INSTL_PRPS_SE_NM": "생활방범", "WGS84_LAT": "37.55", "WGS84_LOT": "127.04"}
     assert fc.to_point(row, ["성동구"]) == [127.04, 37.55, "B", 1]
     assert fc.to_point(row, ["강남구"]) is None
+
+
+def test_pharmacy_force_cat_and_code():
+    fh = _hosp_mod()
+    ph = {"sgguCdNm": "마포구", "XPos": "126.95", "YPos": "37.55", "yadmNm": "가약국"}      # 약국 응답에 종별코드가 없어도
+    assert fh.to_point(ph, {"마포구"}, force_cat="P") == [126.95, 37.55, "P", "가약국"]
+    assert fh.to_point({**ph, "clCd": "81"}, {"마포구"})[2] == "P"                           # 있으면 81 -> P
+    assert fh.to_point(ph, {"마포구"}) is None                                               # 분류를 알 수 없으면 버림

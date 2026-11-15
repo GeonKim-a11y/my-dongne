@@ -2,6 +2,7 @@
 import { loadData, loadHospitals, loadParks, loadCctv } from "./data.js";
 import { MODES, MODE_LABEL, evaluate } from "./scoring.js";
 import { countPerFeature, percentileScores, withinRadius, distM, centroid } from "./gis.js";
+import { searchPlace } from "./kakao.js";
 import { runWizard, optionCards, LEVELS, nearestLevel } from "./wizard.js";
 import { initMap, updateMap, getFeatures, onProbe, showPoints, showParks, showCctv, showProbe, showWork, createPicker, refreshMap } from "./map.js";
 
@@ -485,7 +486,48 @@ function buildWizardSteps() {
       const setInfo = () => { info.textContent = sel.work ? "✔ 위치를 골랐어요. 눌러서 바꿀 수 있어요." : ""; };
       setInfo();
       body.append(mapEl, info);
-      createPicker(mapEl, FEATURES, sel.work, (lng, lat) => { sel.work = { lng, lat }; if (!sel.wCommute) sel.wCommute = 3; setInfo(); drawLevel(); });
+      const pick = (lng, lat) => { sel.work = { lng, lat }; if (!sel.wCommute) sel.wCommute = 3; setInfo(); drawLevel(); };
+      const picker = createPicker(mapEl, FEATURES, sel.work, pick);
+      // 주소·건물명 검색 (카카오). 실패하면 지도 클릭만 안내한다.
+      const form = document.createElement("form");
+      form.className = "search";
+      const q = document.createElement("input");
+      Object.assign(q, { type: "search", placeholder: "도로명 주소나 건물명 (예: 테헤란로 152)", enterKeyHint: "search" });
+      const go = document.createElement("button");
+      go.type = "submit";
+      go.textContent = "검색";
+      form.append(q, go);
+      const res = document.createElement("div");
+      res.className = "results";
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        res.replaceChildren();
+        const text = q.value.trim();
+        if (!text) return;
+        const msg = (t) => { const p = document.createElement("p"); p.className = "picked"; p.textContent = t; res.replaceChildren(p); };
+        msg("검색 중…");
+        try {
+          const rows = await searchPlace(text);
+          if (!rows.length) return msg("검색 결과가 없어요. 다른 표현으로 검색하거나 지도를 눌러 고르세요.");
+          res.replaceChildren();
+          rows.forEach((r) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "hit";
+            const n = document.createElement("b");
+            n.textContent = r.name;
+            const a = document.createElement("small");
+            a.textContent = r.addr;
+            b.append(n, a);
+            b.onclick = () => { if (picker) picker.set(r.lng, r.lat); pick(r.lng, r.lat); res.replaceChildren(); q.value = r.name; };
+            res.appendChild(b);
+          });
+        } catch (err) {
+          msg("주소 검색을 쓸 수 없어요. 지도를 눌러 직접 고르세요.");
+        }
+      });
+      body.insertBefore(form, mapEl);
+      body.insertBefore(res, mapEl);
       const lv = document.createElement("div");
       lv.className = "qgap";
       const l = document.createElement("label");

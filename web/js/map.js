@@ -173,7 +173,7 @@ export function createPicker(el, features, initial, onPick) {
   if (initial) put(initial.lng, initial.lat);
   m.on("click", (e) => { put(e.latlng.lng, e.latlng.lat); onPick(e.latlng.lng, e.latlng.lat); });
   setTimeout(() => m.invalidateSize(), 50);
-  return m;
+  return { set(lng, lat) { put(lng, lat); m.setView([lat, lng], 15); } };
 }
 
 /** 숨겨 둔 상태에서 초기화한 지도를 보이게 된 뒤 크기를 다시 맞춘다 */

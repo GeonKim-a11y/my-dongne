@@ -100,6 +100,13 @@ h2.q{font-size:24px;line-height:1.35;font-weight:800;margin:6px 0 6px;letter-spa
 .why .weak{color:var(--mute)}
 .profile{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
 .profile .mini{background:var(--blue-bg);color:var(--blue-d)}
+.search{display:flex;gap:8px;margin-bottom:8px}
+.search input{flex:1;min-width:0;border:2px solid var(--bg);background:var(--bg);color:var(--ink);border-radius:14px;padding:13px 14px;font:inherit;font-size:15.5px}
+.search input:focus{outline:0;border-color:var(--blue)}
+.search button{border:0;background:var(--blue);color:#fff;border-radius:14px;padding:0 18px;font:inherit;font-weight:700;cursor:pointer}
+.results{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.hit{border:0;background:var(--bg);color:var(--ink);border-radius:14px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column}
+.hit small{color:var(--mute);font-size:13px}
 @media (min-width:700px){.wrap{max-width:720px}h1{font-size:32px}}
 </style>
 </head>

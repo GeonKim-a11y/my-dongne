@@ -71,15 +71,57 @@ details[open] summary::after{content:"－"}
 .empty{text-align:center;color:var(--mute);padding:36px 8px;font-size:15px}
 .more{width:100%;border:0;background:var(--bg);color:var(--sub);border-radius:14px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px}
 .more[hidden]{display:none}
+
+/* 질문 마법사 */
+.bar{height:6px;border-radius:3px;background:var(--bg);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .25s}
+.stepno{font-size:13px;color:var(--mute);margin:12px 2px 0;font-weight:600}
+h2.q{font-size:24px;line-height:1.35;font-weight:800;margin:6px 0 6px;letter-spacing:-.03em}
+.qsub{color:var(--mute);font-size:14.5px;margin:0 0 20px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opts.row{flex-direction:row;flex-wrap:wrap}
+.opt{border:2px solid transparent;background:var(--bg);color:var(--ink);border-radius:18px;padding:16px 18px;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+.opts.row .opt{flex:1 1 40%;text-align:center;align-items:center}
+.opt b{font-size:17px;font-weight:700}
+.opt small{color:var(--mute);font-size:13px}
+.opt.on{border-color:var(--blue);background:var(--blue-bg)}
+.opt.on b{color:var(--blue-d)}
+.foot{display:flex;gap:10px;margin-top:26px}
+.btn{flex:2;border:0;background:var(--blue);color:#fff;border-radius:16px;padding:16px;font:inherit;font-size:17px;font-weight:700;cursor:pointer}
+.btn.ghost{flex:1;background:var(--bg);color:var(--sub)}
+.btn:disabled{opacity:.4;cursor:default}
+.qgap{margin-top:22px}
+.pick{height:300px;border-radius:18px;margin-top:6px}
+.picked{font-size:14px;color:var(--blue-d);margin:10px 2px 0;font-weight:600;min-height:20px}
+.skip{border:0;background:none;color:var(--mute);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;margin-top:10px;padding:4px}
+.redo{width:100%;border:0;background:var(--blue-bg);color:var(--blue-d);border-radius:16px;padding:14px;font:inherit;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px}
+.why{font-size:13px;color:var(--sub);margin-top:8px;line-height:1.55}
+.why b{color:var(--blue-d);font-weight:700}
+.why .weak{color:var(--mute)}
+.profile{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 4px}
+.profile .mini{background:var(--blue-bg);color:var(--blue-d)}
 @media (min-width:700px){.wrap{max-width:720px}h1{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="brand">나의동네찾기</div>
-  <h1>예산에 맞는 동네,<br>같이 찾아볼까요?</h1>
-  <p class="sub">서울 6개 구에서 가격과 생활 환경을 점수로 비교해 드려요.</p>
+  <h1>내게 맞는 동네,<br>같이 찾아볼까요?</h1>
+  <p class="sub">몇 가지만 답하면 서울 6개 구의 동네를 순위로 보여 드려요.</p>
   <div id="banner" class="banner">데이터 불러오는 중…</div>
+
+  <section class="card" id="wizard"></section>
+
+  <div id="results" hidden>
+  <button class="redo" id="redo" type="button">질문 다시 하기</button>
+  <div class="card" id="sumCard">
+    <p class="sum" id="sum"></p>
+    <p class="sumSub" id="sumSub"></p>
+    <div class="profile" id="profile"></div>
+    <div id="list"></div>
+    <button class="more" id="more" hidden></button>
+    <p class="note" id="note"></p>
+  </div>
 
   <div class="card">
     <h2>어떤 집을 찾으세요?</h2>
@@ -123,6 +165,13 @@ details[open] summary::after{content:"－"}
         </div>
         <label class="chk"><input type="checkbox" id="showCctv"> CCTV 위치를 지도에 보라색 점으로 보기</label>
       </div>
+      <div id="commuteControls" hidden>
+        <div style="margin-top:16px">
+          <label><span>직장 가까움 중요도</span><span class="v" id="wCommuteV"></span></label>
+          <input type="range" id="wCommute" min="0" max="5" step="1">
+        </div>
+        <div class="sec" id="workInfo"></div>
+      </div>
       <div id="probeControls" hidden style="margin-top:16px">
         <label><span>지도에서 찍은 곳의 분석 반경</span><span class="v" id="radiusV"></span></label>
         <input type="range" id="radius" min="300" max="3000" step="100">
@@ -142,12 +191,6 @@ details[open] summary::after{content:"－"}
     <p class="note">점선 경계는 가격을 근사로 연결한 동네예요. 가격은 법정동, 경계는 행정동 기준이라 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해져요.</p>
   </div>
 
-  <div class="card">
-    <p class="sum" id="sum"></p>
-    <p class="sumSub" id="sumSub"></p>
-    <div id="list"></div>
-    <button class="more" id="more" hidden></button>
-    <p class="note" id="note"></p>
   </div>
 </div>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

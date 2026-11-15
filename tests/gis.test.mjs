@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { distM, pointInGeom, areaKm2, countPerFeature, percentileScores, withinRadius } from "../web/js/gis.js";
+import { centroid, distM, pointInGeom, areaKm2, countPerFeature, percentileScores, withinRadius } from "../web/js/gis.js";
 
 const sq = { type: "Polygon", coordinates: [[[127, 37.5], [127.01, 37.5], [127.01, 37.51], [127, 37.51], [127, 37.5]]] };
 
@@ -43,4 +43,11 @@ test("가중치(면적) 합계", () => {
   const r = countPerFeature([f], pts, new Set(["N", "S"]), 4).get(f);
   assert.equal(r.sum, 3500);
   assert.ok(r.sumPerKm2 > 3500);
+});
+
+test("중심점: 사각형의 중심, 여러 조각이면 큰 조각", () => {
+  const c = centroid(sq);
+  assert.ok(Math.abs(c[0] - 127.005) < 1e-6 && Math.abs(c[1] - 37.505) < 1e-6);
+  const multi = { type: "MultiPolygon", coordinates: [sq.coordinates, [[[128, 38], [128.001, 38], [128.001, 38.001], [128, 38.001], [128, 38]]]] };
+  assert.ok(Math.abs(centroid(multi)[0] - 127.005) < 1e-6);
 });

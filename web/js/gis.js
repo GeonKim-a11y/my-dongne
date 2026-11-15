@@ -89,3 +89,20 @@ export function percentileScores(values) {
 export function withinRadius(points, lng, lat, meters, cats) {
   return points.filter((p) => cats.has(p[2]) && distM(lng, lat, p[0], p[1]) <= meters);
 }
+
+/** 도형의 중심점 [경도, 위도]. 가장 큰 바깥 고리의 면적 가중 중심(서울 규모에서는 평면 근사로 충분). */
+export function centroid(geom) {
+  let best = null;
+  for (const [outer] of polys(geom)) {
+    let a = 0, cx = 0, cy = 0;
+    for (let i = 0, j = outer.length - 1; i < outer.length; j = i++) {
+      const f = outer[j][0] * outer[i][1] - outer[i][0] * outer[j][1];
+      a += f;
+      cx += (outer[j][0] + outer[i][0]) * f;
+      cy += (outer[j][1] + outer[i][1]) * f;
+    }
+    a /= 2;
+    if (!best || Math.abs(a) > Math.abs(best.a)) best = { a, c: a ? [cx / (6 * a), cy / (6 * a)] : outer[0] };
+  }
+  return best.c;
+}

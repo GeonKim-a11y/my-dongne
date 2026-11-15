@@ -5,6 +5,8 @@ let boundary = null;
 let pointLayer = null;
 let parkLayer = null;
 let cctvLayer = null;
+let workLayer = null;
+let viewBounds = null;
 let probeLayer = null;
 let onProbeCb = null;
 let unitRows = new Map();
@@ -75,7 +77,8 @@ export async function initMap(el, url = "data/dong_boundary.json", outlineUrl = 
     const act = outline.features.filter((f) => f.properties.kind === "gu" && f.properties.active);
     L.geoJSON({ type: "FeatureCollection", features: act }, { interactive: false, style: { color: "#1b64da", weight: 2, fill: false } }).addTo(map);
   }
-  map.fitBounds(seoulBounds || layer.getBounds());
+  viewBounds = seoulBounds || layer.getBounds();
+  map.fitBounds(viewBounds);
   map.on("click", (e) => { if (onProbeCb) onProbeCb(e.latlng.lng, e.latlng.lat); });
   return true;
 }
@@ -145,3 +148,33 @@ export function showCctv(points, cats, show) {
     L.circleMarker([p[1], p[0]], { renderer: canvas, radius: Math.min(5, 1.5 + p[3] * 0.4), weight: 0, fillColor: "#7c3aed", fillOpacity: 0.55, interactive: false })));
   cctvLayer.addTo(map);
 }
+
+/** 메인 지도에 직장 위치 마커 */
+export function showWork(point) {
+  if (!map) return;
+  if (workLayer) { map.removeLayer(workLayer); workLayer = null; }
+  if (!point) return;
+  workLayer = L.marker([point.lat, point.lng], { interactive: false, title: "직장" })
+    .bindTooltip("직장", { permanent: true, direction: "top", offset: [-14, -8] }).addTo(map);
+}
+
+/** 질문 화면용 작은 지도: 눌러서 위치를 고른다. features: 행정동 경계(윤곽만 그림), initial: {lng,lat} 또는 null */
+export function createPicker(el, features, initial, onPick) {
+  if (typeof L === "undefined") { el.textContent = "지도 라이브러리를 불러오지 못했습니다."; return null; }
+  const m = L.map(el, { zoomSnap: 0.25, minZoom: 10, attributionControl: true });
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(m);
+  const g = L.geoJSON({ type: "FeatureCollection", features }, { interactive: false, style: { color: "#3182f6", weight: 1, fillColor: "#3182f6", fillOpacity: 0.06 } }).addTo(m);
+  m.fitBounds(g.getBounds());
+  let marker = null;
+  const put = (lng, lat) => {
+    if (marker) m.removeLayer(marker);
+    marker = L.marker([lat, lng]).addTo(m);
+  };
+  if (initial) put(initial.lng, initial.lat);
+  m.on("click", (e) => { put(e.latlng.lng, e.latlng.lat); onPick(e.latlng.lng, e.latlng.lat); });
+  setTimeout(() => m.invalidateSize(), 50);
+  return m;
+}
+
+/** 숨겨 둔 상태에서 초기화한 지도를 보이게 된 뒤 크기를 다시 맞춘다 */
+export function refreshMap() { if (map) setTimeout(() => { map.invalidateSize(); if (viewBounds) map.fitBounds(viewBounds); }, 50); }

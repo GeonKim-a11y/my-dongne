@@ -1,8 +1,9 @@
 // 화면 로직: 매매/전세/월세 탭, 예산 입력, 결과 표.
 import { loadData, loadHospitals, loadParks, loadCctv } from "./data.js";
 import { MODES, MODE_LABEL, evaluate } from "./scoring.js";
-import { countPerFeature, percentileScores, withinRadius, distM } from "./gis.js";
-import { initMap, updateMap, getFeatures, onProbe, showPoints, showParks, showCctv, showProbe } from "./map.js";
+import { countPerFeature, percentileScores, withinRadius, distM, centroid } from "./gis.js";
+import { runWizard, optionCards, LEVELS, nearestLevel } from "./wizard.js";
+import { initMap, updateMap, getFeatures, onProbe, showPoints, showParks, showCctv, showProbe, showWork, createPicker, refreshMap } from "./map.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -31,10 +32,13 @@ let PARK = null;       // 공원 {points:[lng,lat,분류,이름,면적㎡], samp
 let FEATURES = null;   // 행정동 경계 feature 배열 또는 null
 let probe = null;      // 지도에서 찍은 분석 지점 {lng, lat}
 const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원", P: "약국" };
-const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]) };
+const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]), wCommute: 0, work: null };
 let densityCache = { key: "", map: null };
 let parkCache = null;
 let cctvCache = null;
+let centroidCache = null;
+const syncers = [];     // 슬라이더 값 표시를 sel 에서 다시 맞추는 함수들
+let wizardStep = 0;
 
 function fmtMan(v) {
   return v >= 10000 ? `${(v / 10000).toFixed(1)}억` : `${Math.round(v).toLocaleString()}만`;
@@ -147,6 +151,47 @@ function safetyByUnit(units) {
   return out;
 }
 
+// 통근: 행정동 중심점에서 직장까지 직선거리(km). 가까울수록 높은 점수(백분위).
+function commuteByUnit(units) {
+  const out = new Map();
+  if (!sel.work || !FEATURES) return out;
+  if (!centroidCache) centroidCache = new Map(FEATURES.map((f) => [f, centroid(f.geometry)]));
+  const items = units.filter((u) => u.feature).map((u) => {
+    const [lng, lat] = centroidCache.get(u.feature);
+    return { u, km: distM(sel.work.lng, sel.work.lat, lng, lat) / 1000 };
+  });
+  const scores = percentileScores(items.map((x) => -x.km));
+  items.forEach((x, i) => out.set(x.u.key, { km: x.km, score: scores[i] }));
+  return out;
+}
+
+// '왜 이 동네' 한 줄: 내가 중요하게 본 항목 중 강점(60점 이상)과 약점(30점 미만)
+function reasonsOf(r, f) {
+  const items = [];
+  if (r.ev.score !== null && f.wB > 0) items.push([f.wB, r.ev.score, "예산 여유"]);
+  if (f.useMed && r.m) items.push([f.wM, r.m.score, "병원·약국 밀도"]);
+  if (f.usePark && r.pk) items.push([Math.max(f.wPA, f.wPC), Math.max(r.pk.scoreArea, r.pk.scoreCnt), "공원"]);
+  if (f.useSafe && r.sf) items.push([f.wS, r.sf.score, "CCTV 밀도"]);
+  if (f.useComm && r.cm) items.push([f.wC, r.cm.score, `직장 거리(${r.cm.km.toFixed(1)}km)`]);
+  const strong = items.filter(([, sc]) => sc >= 60).sort((a, b) => b[0] * b[1] - a[0] * a[1]).slice(0, 3);
+  const weak = items.filter(([w, sc]) => w >= 3 && sc < 30);
+  if (!strong.length && !weak.length) return null;
+  const d = document.createElement("div");
+  d.className = "why";
+  if (strong.length) {
+    const b = document.createElement("b");
+    b.textContent = strong.map(([, sc, n]) => (n === "예산 여유" ? `예산 여유 ${sc}점` : `${n} 상위 ${Math.max(1, 100 - sc)}%`)).join(" · ");
+    d.appendChild(b);
+  }
+  if (weak.length) {
+    const w = document.createElement("span");
+    w.className = "weak";
+    w.textContent = (strong.length ? " / " : "") + "아쉬운 점: " + weak.map(([, , n]) => n).join(", ");
+    d.appendChild(w);
+  }
+  return d;
+}
+
 function priceText(r) {
   const s = r.ev.stat;
   if (!s) return "-";
@@ -165,6 +210,9 @@ function render() {
   const safe = safetyByUnit(units);
   const useSafe = safe.size > 0 && sel.wSafe > 0;
   const wS = useSafe ? sel.wSafe : 0;
+  const comm = commuteByUnit(units);
+  const useComm = comm.size > 0 && sel.wCommute > 0;
+  const wC = useComm ? sel.wCommute : 0;
   const wB = sel.wBudget, wM = useMed ? sel.wMed : 0;
   const budget = budgetInMan();
 
@@ -173,15 +221,16 @@ function render() {
     const m = med.get(u.key) || null;
     const pk = park.get(u.key) || null;
     const sf = safe.get(u.key) || null;
+    const cm = comm.get(u.key) || null;
     let total = null;
     if (ev.status === "ok") {
-      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC], [sf ? sf.score : null, wS]].filter(([v, w]) => v !== null && w > 0);
+      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC], [sf ? sf.score : null, wS], [cm ? cm.score : null, wC]].filter(([v, w]) => v !== null && w > 0);
       const wsum = parts.reduce((a, [, w]) => a + w, 0);
       total = wsum ? Math.round(parts.reduce((a, [v, w]) => a + v * w, 0) / wsum) : ev.score;
     }
     const lowHidden = state.hideLow && ev.stat && ev.stat.low_sample;
     const status = lowHidden || ev.status === "nodata" ? "nodata" : ev.status;
-    return { u, ev, m, pk, sf, total, status };
+    return { u, ev, m, pk, sf, cm, total, status };
   });
   const ok = rows.filter((r) => r.status === "ok").sort((a, b) => b.total - a.total || b.ev.score - a.ev.score);
   const over = rows.filter((r) => r.status === "over").sort((a, b) => b.ev.margin - a.ev.margin);
@@ -192,6 +241,7 @@ function render() {
     const bits = [`가격 ${priceText(r)}`];
     if (r.ev.score !== null) bits.push(`예산 ${r.ev.score}점`);
     if (r.m) bits.push(`의료기관 ${r.m.count}곳 (${r.m.perKm2.toFixed(0)}곳/㎢, ${r.m.score}점)`);
+    if (r.cm) bits.push(`직장까지 ${r.cm.km.toFixed(1)}km`);
     if (r.sf) bits.push(`CCTV ${Math.round(r.sf.cams).toLocaleString()}대 (${r.sf.perKm2.toFixed(0)}대/㎢, ${r.sf.score}점)`);
     if (r.pk) bits.push(`공원 ${r.pk.count}곳 (면적 비율 ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}% ${r.pk.scoreArea}점 · 개수 ${r.pk.scoreCnt}점)`);
     return bits.join(" · ");
@@ -199,10 +249,18 @@ function render() {
   showPoints(HOSP && HOSP.points, sel.cats, sel.showPts);
   showParks(PARK && PARK.points, sel.showParks);
   showCctv(CCTV && CCTV.points, sel.cctvCats, sel.showCctv);
+  showWork(sel.work);
 
-  $("sum").textContent =
-    `예산에 맞는 동네 ${ok.length}곳` +
-    (useMed || usePark || useSafe ? ` · 예산 ${wB}${useMed ? ` : 의료 ${wM}` : ""}${wPA ? ` : 공원면적 ${wPA}` : ""}${wPC ? ` : 공원개수 ${wPC}` : ""}${wS ? ` : 안전 ${wS}` : ""} 비율` : "");
+  $("sum").textContent = ok.length ? `나에게 맞는 동네 ${ok.length}곳을 순위로 정리했어요` : "조건에 맞는 동네가 없어요";
+  const prof = $("profile");
+  prof.replaceChildren();
+  const pchip = (t) => { const e = document.createElement("span"); e.className = "mini"; e.textContent = t; prof.appendChild(e); };
+  const lvl = (w) => (LEVELS.find((l) => l.v === nearestLevel(w)) || LEVELS[0]).label;
+  pchip(`예산 ${lvl(wB)}`);
+  if (useMed) pchip(`의료 ${lvl(wM)}`);
+  if (usePark) pchip(`공원 ${lvl(Math.max(wPA, wPC))}`);
+  if (useSafe) pchip(`안전 ${lvl(wS)}`);
+  if (useComm) pchip(`통근 ${lvl(wC)}`);
   $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} · 거래 데이터가 있는 ${totalN}곳 중`;
 
   const list = $("list");
@@ -220,7 +278,12 @@ function render() {
     if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
     if (useSafe && r.sf) chips.appendChild(el("span", "mini", `안전 ${r.sf.score} · ${Math.round(r.sf.cams).toLocaleString()}대`));
     if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 면적 ${r.pk.scoreArea} · 개수 ${r.pk.scoreCnt} (${r.pk.count}곳)`));
+    if (useComm && r.cm) chips.appendChild(el("span", "mini", `직장 ${r.cm.km.toFixed(1)}km`));
     mid.appendChild(chips);
+    if (no) {
+      const why = reasonsOf(r, { useMed, usePark, useSafe, useComm, wM, wPA, wPC, wS, wC, wB });
+      if (why) mid.appendChild(why);
+    }
     const sc = el("div", "score");
     sc.appendChild(el("b", "", r.total === null ? "-" : String(r.total)));
     sc.appendChild(el("small", "", r.status === "over" ? "예산 초과" : "점"));
@@ -241,6 +304,7 @@ function render() {
     (useMed ? "의료 점수: 행정동 안의 의료기관 수를 면적(㎢)으로 나눈 밀도를 서울 6개 구 행정동끼리 비교한 백분위(0~100)입니다. " : "") +
     (useSafe ? "안전 점수: 방범·어린이보호 목적 CCTV 카메라 대수를 동 면적으로 나눈 밀도의 백분위입니다(CCTV 입력 수준은 지자체마다 달라 구별 차이는 실제 안전도와 다를 수 있습니다). " : "") +
     (usePark ? "공원 면적 점수: 행정동 안 공원 면적 / 동 면적의 백분위, 공원 개수 점수: 행정동 안 공원 수 / 동 면적(곳/㎢)의 백분위입니다. 공원은 중심점 기준이라 큰 공원은 한 동에 몰려 계산됩니다. " : "") +
+    (useComm ? "직장 점수: 동 중심점에서 직장까지 직선거리가 가까울수록 높은 백분위입니다(실제 대중교통 시간과는 다를 수 있습니다). " : "") +
     "종합 점수는 가중치 비율의 평균입니다. 가격은 법정동 단위라 한 법정동에 여러 행정동이 속하면 같은 값을 씁니다.";
   renderProbe();
 }
@@ -296,16 +360,18 @@ function buildControls() {
   show("safeControls", !!CCTV);
   show("medControls", !!HOSP);
   show("parkControls", !!PARK);
+  show("commuteControls", !!FEATURES);
   show("probeControls", !!(HOSP || PARK || CCTV));
   const mk = (id, key, fmt) => {
     const inp = $(id), out = $(id + "V");
-    inp.value = sel[key];
-    const sync = () => { out.textContent = fmt(Number(inp.value)); };
-    inp.addEventListener("input", () => { sel[key] = Number(inp.value); sync(); render(); });
+    const sync = () => { inp.value = sel[key]; out.textContent = fmt(Number(inp.value)); };
+    inp.addEventListener("input", () => { sel[key] = Number(inp.value); out.textContent = fmt(Number(inp.value)); render(); });
+    syncers.push(sync);
     sync();
   };
   mk("wBudget", "wBudget", (v) => String(v));
   mk("radius", "radius", (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}km` : `${v}m`));
+  mk("wCommute", "wCommute", (v) => String(v));
   if (HOSP) {
     const cats = $("cats");
     cats.replaceChildren();
@@ -314,9 +380,11 @@ function buildControls() {
       b.type = "button";
       b.className = "chip" + (sel.cats.has(k) ? " on" : "");
       b.textContent = label;
+      b.dataset.cat = k;
       b.onclick = () => { sel.cats.has(k) ? sel.cats.delete(k) : sel.cats.add(k); b.classList.toggle("on"); render(); };
       cats.appendChild(b);
     });
+    syncers.push(() => cats.querySelectorAll(".chip").forEach((c) => c.classList.toggle("on", sel.cats.has(c.dataset.cat))));
     mk("wMed", "wMed", (v) => String(v));
     $("showPts").addEventListener("input", (e) => { sel.showPts = e.target.checked; render(); });
   }
@@ -329,6 +397,136 @@ function buildControls() {
     mk("wParkCnt", "wParkCnt", (v) => String(v));
     $("showParks").addEventListener("input", (e) => { sel.showParks = e.target.checked; render(); });
   }
+  syncers.push(() => {
+    $("workInfo").textContent = sel.work ? `직장 위치: 위도 ${sel.work.lat.toFixed(4)}, 경도 ${sel.work.lng.toFixed(4)} (질문 다시 하기에서 바꿀 수 있어요)` : "직장 위치를 아직 고르지 않았어요. 질문 다시 하기에서 고를 수 있어요.";
+  });
+}
+
+// ---------- 질문 마법사 ----------
+const BAND_HINT = { S: "혼자 · 신혼", M: "2~3인 가족", L: "4인 이상" };
+
+function buildWizardSteps() {
+  const steps = [];
+  steps.push({
+    title: "어떤 형태의 집을 찾으세요?",
+    build(body) {
+      optionCards(body, MODES.map((m) => ({ v: m, label: MODE_LABEL[m] })), state.mode, (v) => { state.mode = v; }, "opts row");
+    },
+  });
+  steps.push({
+    title: "예산은 어느 정도예요?",
+    sub: "이 금액을 넘는 동네는 순위에서 빠져요.",
+    build(body) {
+      const box = document.createElement("div");
+      body.appendChild(box);
+      const draw = () => {
+        box.replaceChildren();
+        SLIDERS[state.mode].forEach((sl) => {
+          const wrap = document.createElement("div");
+          wrap.style.marginBottom = "18px";
+          const label = document.createElement("label");
+          const name = document.createElement("span");
+          name.textContent = sl.label;
+          const val = document.createElement("span");
+          val.className = "v";
+          label.append(name, val);
+          const input = document.createElement("input");
+          Object.assign(input, { type: "range", min: sl.min, max: sl.max, step: sl.step, value: state.values[state.mode][sl.id] });
+          const sync = () => { val.textContent = sl.fmt(Number(input.value)); };
+          input.addEventListener("input", () => { state.values[state.mode][sl.id] = Number(input.value); sync(); });
+          sync();
+          wrap.append(label, input);
+          box.appendChild(wrap);
+        });
+      };
+      draw();
+      const q = document.createElement("div");
+      q.className = "qgap";
+      const l = document.createElement("label");
+      l.style.marginBottom = "10px";
+      l.textContent = "필요한 크기는요?";
+      const hold = document.createElement("div");
+      q.append(l, hold);
+      body.appendChild(q);
+      optionCards(hold, Object.entries(DATA.bands).map(([k, label]) => ({ v: k, label: label.replace(/\s*\(.*\)/, ""), sub: `${(label.match(/\((.*)\)/) || [])[1] || ""}${BAND_HINT[k] ? " · " + BAND_HINT[k] : ""}` })), state.band, (v) => { state.band = v; }, "opts row");
+    },
+  });
+  const level = (title, sub, key, show, extra) => ({
+    title, sub, show,
+    build(body) {
+      optionCards(body, LEVELS, nearestLevel(Array.isArray(key) ? sel[key[0]] : sel[key]), (v) => {
+        (Array.isArray(key) ? key : [key]).forEach((k) => { sel[k] = v; });
+      });
+      if (extra) extra(body);
+    },
+  });
+  steps.push(level("병원·약국이 가까운 게 얼마나 중요해요?", "동네 안의 의료기관 밀도(㎢당 개수)로 비교해요.", "wMed", () => !!HOSP, (body) => {
+    if (!(HOSP.categories && "P" in HOSP.categories)) return;
+    const l = document.createElement("label");
+    l.className = "chk qgap";
+    const c = document.createElement("input");
+    c.type = "checkbox";
+    c.checked = sel.cats.has("P");
+    c.addEventListener("input", () => { c.checked ? sel.cats.add("P") : sel.cats.delete("P"); });
+    l.append(c, document.createTextNode(" 약국도 함께 셀게요"));
+    body.appendChild(l);
+  }));
+  steps.push(level("집 근처에 공원이 있으면 좋겠어요?", "공원 면적 비율과 공원 개수를 함께 봐요.", ["wParkArea", "wParkCnt"], () => !!PARK));
+  steps.push(level("방범·안전은 얼마나 신경 쓰세요?", "방범·어린이보호 CCTV 밀도로 비교해요. 지자체마다 등록 수준이 달라 참고용이에요.", "wSafe", () => !!CCTV));
+  steps.push({
+    title: "직장(또는 학교)은 어디예요?",
+    sub: "지도를 눌러 위치를 고르면, 가까운 동네에 점수를 더 줘요. 건너뛰어도 돼요.",
+    show: () => !!FEATURES,
+    build(body, api) {
+      const mapEl = document.createElement("div");
+      mapEl.className = "pick";
+      const info = document.createElement("p");
+      info.className = "picked";
+      const setInfo = () => { info.textContent = sel.work ? "✔ 위치를 골랐어요. 눌러서 바꿀 수 있어요." : ""; };
+      setInfo();
+      body.append(mapEl, info);
+      createPicker(mapEl, FEATURES, sel.work, (lng, lat) => { sel.work = { lng, lat }; if (!sel.wCommute) sel.wCommute = 3; setInfo(); drawLevel(); });
+      const lv = document.createElement("div");
+      lv.className = "qgap";
+      const l = document.createElement("label");
+      l.style.marginBottom = "10px";
+      l.textContent = "직장 가까움은 얼마나 중요해요?";
+      const hold = document.createElement("div");
+      lv.append(l, hold);
+      body.appendChild(lv);
+      const drawLevel = () => { lv.hidden = !sel.work; optionCards(hold, LEVELS.slice(1), nearestLevel(sel.wCommute || 3), (v) => { sel.wCommute = v; }); };
+      drawLevel();
+      const skip = document.createElement("button");
+      skip.type = "button";
+      skip.className = "skip";
+      skip.textContent = "직장은 따로 없어요 (건너뛰기)";
+      skip.onclick = () => { sel.work = null; sel.wCommute = 0; finishWizard(); };
+      body.appendChild(skip);
+    },
+  });
+  steps.push({
+    title: "예산 여유는 얼마나 중요해요?",
+    sub: "높을수록 예산보다 싼 동네가 위로 올라와요. 낮으면 예산 안에서 다른 조건을 우선해요.",
+    build(body) { optionCards(body, LEVELS.slice(1), nearestLevel(sel.wBudget), (v) => { sel.wBudget = v; }); },
+  });
+  return steps;
+}
+
+function startWizard(at = 0) {
+  $("results").hidden = true;
+  $("wizard").hidden = false;
+  runWizard($("wizard"), buildWizardSteps(), finishWizard, at);
+}
+
+function finishWizard() {
+  $("wizard").hidden = true;
+  $("results").hidden = false;
+  state.expanded = false;
+  syncers.forEach((f) => f());
+  buildTabs(); buildSliders(); buildBands();
+  render();
+  refreshMap();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 async function init() {
@@ -368,9 +566,10 @@ async function init() {
   onProbe((lng, lat) => { if (HOSP || PARK || CCTV) { probe = { lng, lat }; renderProbe(); } });
   buildControls();
   buildTabs(); buildSliders(); buildBands();
+  $("redo").addEventListener("click", () => startWizard(0));
   $("more").addEventListener("click", () => { state.expanded = !state.expanded; render(); });
   $("showOut").addEventListener("input", (e) => { state.showOut = e.target.checked; render(); });
   $("hideLow").addEventListener("input", (e) => { state.hideLow = e.target.checked; render(); });
-  render();
+  startWizard(0);
 }
 init();

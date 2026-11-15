@@ -107,28 +107,51 @@ h2.q{font-size:24px;line-height:1.35;font-weight:800;margin:6px 0 6px;letter-spa
 .results{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
 .hit{border:0;background:var(--bg);color:var(--ink);border-radius:14px;padding:12px 14px;font:inherit;text-align:left;cursor:pointer;display:flex;flex-direction:column}
 .hit small{color:var(--mute);font-size:13px}
+.appbar{display:flex;justify-content:space-between;align-items:center;margin:2px 2px 14px}
+.logo{font-size:17px;font-weight:800;color:var(--blue);letter-spacing:-.03em}
+.redo-sm{border:0;background:var(--blue-bg);color:var(--blue-d);border-radius:999px;padding:8px 14px;font:inherit;font-size:13.5px;font-weight:700;cursor:pointer}
+.redo-sm[hidden],.hero[hidden],.banner[hidden]{display:none}
+.hero{text-align:center;padding:36px 12px 20px}
+.hero .pin{width:84px;height:84px;margin:0 auto 18px;border-radius:28px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:42px}
+.hero h1{font-size:30px;margin:0 0 10px}
+.hero .sub{margin:0 0 24px;font-size:16px;line-height:1.6}
+.points{list-style:none;display:flex;gap:8px;padding:0;margin:0 0 30px}
+.points li{flex:1;background:var(--card);border-radius:18px;padding:14px 6px;display:flex;flex-direction:column;gap:2px}
+.points b{font-size:16px}.points span{font-size:12px;color:var(--mute)}
+.btn.big{width:100%;flex:none;padding:18px;font-size:18px;border-radius:18px}
+details.info{border:0;background:var(--card);border-radius:20px;padding:4px 18px;margin-top:4px}
+details.info summary{font-size:14px;color:var(--mute);font-weight:600}
 @media (min-width:700px){.wrap{max-width:720px}h1{font-size:32px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="brand">나의동네찾기</div>
-  <h1>내게 맞는 동네,<br>같이 찾아볼까요?</h1>
-  <p class="sub">몇 가지만 답하면 서울 6개 구의 동네를 순위로 보여 드려요.</p>
-  <div id="banner" class="banner">데이터 불러오는 중…</div>
+  <header class="appbar"><span class="logo">나의동네찾기</span><button class="redo-sm" id="redoTop" type="button" hidden>다시 찾기</button></header>
+  <div id="banner" class="banner" hidden></div>
 
-  <section class="card" id="wizard"></section>
+  <section id="welcome" class="hero">
+    <div class="pin">📍</div>
+    <h1>내게 맞는 동네,<br>3분이면 찾아요</h1>
+    <p class="sub">예산과 생활 조건만 알려 주세요.<br>서울 동네를 나에게 맞는 순서로 보여 드려요.</p>
+    <ul class="points">
+      <li><b>예산</b><span>실거래가 기준</span></li>
+      <li><b>생활</b><span>병원·공원·안전</span></li>
+      <li><b>통근</b><span>직장까지 거리</span></li>
+    </ul>
+    <button class="btn big" id="start" type="button">내 동네 찾기 시작</button>
+  </section>
+
+  <section class="card" id="wizard" hidden></section>
 
   <div id="results" hidden>
-  <button class="redo" id="redo" type="button">질문 다시 하기</button>
   <div class="card" id="sumCard">
     <p class="sum" id="sum"></p>
     <p class="sumSub" id="sumSub"></p>
     <div class="profile" id="profile"></div>
     <div id="list"></div>
     <button class="more" id="more" hidden></button>
-    <p class="note" id="note"></p>
   </div>
+  <details class="info"><summary>점수는 어떻게 계산했나요?</summary><p class="note" id="note"></p><p class="note" id="dataInfo"></p></details>
 
   <div class="card">
     <h2>어떤 집을 찾으세요?</h2>
@@ -195,7 +218,7 @@ h2.q{font-size:24px;line-height:1.35;font-weight:800;margin:6px 0 6px;letter-spa
       <span><i class="sw" style="background:#cfd4dc"></i>예산 초과</span>
       <span><i class="sw" style="background:#eceef2;border:1px solid #cfd4dc"></i>데이터 없음</span></div>
     <p class="probe" id="probe"></p>
-    <p class="note">점선 경계는 가격을 근사로 연결한 동네예요. 가격은 법정동, 경계는 행정동 기준이라 한 법정동에 여러 행정동이 속하면 같은 값으로 칠해져요.</p>
+    <p class="note">점선 경계는 가격을 근사로 연결한 동네예요. 지도를 눌러 주변을 분석해 보세요.</p>
   </div>
 
   </div>

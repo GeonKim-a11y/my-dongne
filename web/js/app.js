@@ -252,7 +252,7 @@ function render() {
   showCctv(CCTV && CCTV.points, sel.cctvCats, sel.showCctv);
   showWork(sel.work);
 
-  $("sum").textContent = ok.length ? `나에게 맞는 동네 ${ok.length}곳을 순위로 정리했어요` : "조건에 맞는 동네가 없어요";
+  $("sum").textContent = ok.length ? "나에게 맞는 동네 순위" : "조건에 맞는 동네가 없어요";
   const prof = $("profile");
   prof.replaceChildren();
   const pchip = (t) => { const e = document.createElement("span"); e.className = "mini"; e.textContent = t; prof.appendChild(e); };
@@ -262,7 +262,7 @@ function render() {
   if (usePark) pchip(`공원 ${lvl(Math.max(wPA, wPC))}`);
   if (useSafe) pchip(`안전 ${lvl(wS)}`);
   if (useComm) pchip(`통근 ${lvl(wC)}`);
-  $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band]} · 거래 데이터가 있는 ${totalN}곳 중`;
+  $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band].replace(/\s*\(.*\)/, "")} · 조건에 맞는 ${ok.length}곳 / 전체 ${totalN}곳`;
 
   const list = $("list");
   list.replaceChildren();
@@ -275,7 +275,6 @@ function render() {
     if (r.ev.stat && r.ev.stat.low_sample) name.appendChild(el("span", "tag", "표본 부족"));
     mid.append(name, el("div", "sb", `${r.u.gu} · ${priceText(r)}`));
     const chips = el("div", "chips");
-    if (r.ev.score !== null) chips.appendChild(el("span", "mini", `예산 ${r.ev.score}`));
     if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
     if (useSafe && r.sf) chips.appendChild(el("span", "mini", `안전 ${r.sf.score} · ${Math.round(r.sf.cams).toLocaleString()}대`));
     if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 면적 ${r.pk.scoreArea} · 개수 ${r.pk.scoreCnt} (${r.pk.count}곳)`));
@@ -554,7 +553,16 @@ function buildWizardSteps() {
   return steps;
 }
 
+function showWelcome() {
+  $("welcome").hidden = false;
+  $("wizard").hidden = true;
+  $("results").hidden = true;
+  $("redoTop").hidden = true;
+}
+
 function startWizard(at = 0) {
+  $("welcome").hidden = true;
+  $("redoTop").hidden = true;
   $("results").hidden = true;
   $("wizard").hidden = false;
   runWizard($("wizard"), buildWizardSteps(), finishWizard, at);
@@ -563,6 +571,7 @@ function startWizard(at = 0) {
 function finishWizard() {
   $("wizard").hidden = true;
   $("results").hidden = false;
+  $("redoTop").hidden = false;
   state.expanded = false;
   syncers.forEach((f) => f());
   buildTabs(); buildSliders(); buildBands();
@@ -572,15 +581,15 @@ function finishWizard() {
 }
 
 async function init() {
-  try { DATA = await loadData(); } catch (e) { $("banner").textContent = e.message; return; }
+  try { DATA = await loadData(); } catch (e) { $("banner").hidden = false; $("banner").textContent = e.message; return; }
   const b = $("banner");
   if (DATA.sample) {
-    b.textContent = "샘플 데이터입니다. 가격은 가상 값이며 실제 시세가 아닙니다. scripts/fetch_prices.py 로 실데이터를 만들면 자동으로 교체됩니다.";
+    b.hidden = false;
+    b.textContent = "샘플 데이터입니다. 가격은 가상 값이며 실제 시세가 아닙니다.";
   } else {
-    b.className = "banner real";
     const renewal = DATA.rent_new_only ? "전월세는 신규 계약만" : "전월세는 갱신 포함";
     const ms = DATA.months;
-    b.textContent = `실거래가 (${ms[ms.length - 1]} ~ ${ms[0]} 계약분, ${ms.length}개월) · ${DATA.gu.join(", ")} · ${renewal} · 생성 ${DATA.generated_at}`;
+    $("dataInfo").textContent = `데이터: 실거래가 ${ms[ms.length - 1]} ~ ${ms[0]} 계약분(${ms.length}개월) · ${DATA.gu.join(", ")} · ${renewal} · 갱신 ${DATA.generated_at.slice(0, 10)}`;
   }
   const mapOk = await initMap($("map"));
   FEATURES = mapOk ? getFeatures() : null;
@@ -608,10 +617,11 @@ async function init() {
   onProbe((lng, lat) => { if (HOSP || PARK || CCTV) { probe = { lng, lat }; renderProbe(); } });
   buildControls();
   buildTabs(); buildSliders(); buildBands();
-  $("redo").addEventListener("click", () => startWizard(0));
+  $("redoTop").addEventListener("click", () => startWizard(0));
+  $("start").addEventListener("click", () => startWizard(0));
   $("more").addEventListener("click", () => { state.expanded = !state.expanded; render(); });
   $("showOut").addEventListener("input", (e) => { state.showOut = e.target.checked; render(); });
   $("hideLow").addEventListener("input", (e) => { state.hideLow = e.target.checked; render(); });
-  startWizard(0);
+  showWelcome();
 }
 init();

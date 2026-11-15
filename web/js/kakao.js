@@ -24,7 +24,12 @@ export async function searchPlace(query) {
   const svc = kakao.maps.services;
   const run = (fn) => new Promise((resolve) => fn((data, status) => resolve(status === svc.Status.OK ? data : [])));
   let rows = await run((cb) => new svc.Geocoder().addressSearch(q, cb));
-  if (rows.length) return rows.slice(0, 5).map((r) => ({ name: r.address_name, addr: r.road_address ? r.road_address.address_name : r.address_name, lng: Number(r.x), lat: Number(r.y) }));
+  if (rows.length) return rows.slice(0, 5).map((r) => {
+    const road = r.road_address || null;
+    const bname = road && road.building_name ? road.building_name : "";
+    const addr = road ? road.address_name : r.address_name;
+    return { name: bname || addr, addr: bname ? `${addr}${r.address && r.address.address_name ? ` (지번 ${r.address.address_name.replace(/^서울\s*/, "")})` : ""}` : (r.address ? `지번 ${r.address.address_name}` : addr), lng: Number(r.x), lat: Number(r.y) };
+  });
   rows = await run((cb) => new svc.Places().keywordSearch(q, cb, { location: new kakao.maps.LatLng(37.5665, 126.978), radius: 30000 }));
   return rows.slice(0, 5).map((r) => ({ name: r.place_name, addr: r.road_address_name || r.address_name, lng: Number(r.x), lat: Number(r.y) }));
 }

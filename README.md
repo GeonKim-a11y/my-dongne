@@ -113,3 +113,6 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 - 직장 위치를 고르면 행정동 중심점(`gis.centroid`)에서 직선거리가 가까울수록 높은 점수를 줍니다. 실제 대중교통 시간이 아니라 직선거리입니다.
 - 순위 카드에는 '왜 이 동네인지'(상위 N% 강점, 중요하게 본 항목 중 약점)가 한 줄로 나옵니다.
 - 결과 화면의 '질문 다시 하기'와 '어떤 집을 찾으세요?' 카드에서 조건을 바로 고칠 수 있습니다.
+
+## 지하철역 접근성
+`scripts/fetch_stations.py`(OpenStreetMap Overpass, 키 불필요)가 `web/data/stations.json`을 만들고, 앱은 행정동 중심점에서 가장 가까운 역까지의 직선거리를 백분위 점수로 쓴다. 도보 시간은 직선거리 × 1.3 ÷ 분당 80m 의 대략값이다. 파일이 없으면 이 지표만 빠진다. 갱신: Actions 탭의 `update-stations` 수동 실행.

@@ -195,6 +195,12 @@ details.info summary{font-size:14px;color:var(--mute);font-weight:600}
         </div>
         <label class="chk"><input type="checkbox" id="showCctv"> CCTV 위치를 지도에 보라색 점으로 보기</label>
       </div>
+      <div id="stationControls" hidden>
+        <div style="margin-top:16px">
+          <label><span>지하철역 가까움 중요도</span><span class="v" id="wStationV"></span></label>
+          <input type="range" id="wStation" min="0" max="5" step="1">
+        </div>
+      </div>
       <div id="commuteControls" hidden>
         <div style="margin-top:16px">
           <label><span>직장 가까움 중요도</span><span class="v" id="wCommuteV"></span></label>

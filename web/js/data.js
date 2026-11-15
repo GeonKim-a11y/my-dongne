@@ -49,3 +49,14 @@ export async function loadCctv() {
   }
   return null;
 }
+
+// 지하철역 위치 {points:[lng,lat,이름]}. 파일이 없으면 null (이 지표만 빠진다).
+export async function loadStations() {
+  try {
+    const r = await fetch("data/stations.json");
+    if (r.ok) return await r.json();
+  } catch (e) {
+    /* 없음 */
+  }
+  return null;
+}

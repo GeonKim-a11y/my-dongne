@@ -1,5 +1,5 @@
 // 화면 로직: 매매/전세/월세 탭, 예산 입력, 결과 표.
-import { loadData, loadHospitals, loadParks, loadCctv } from "./data.js";
+import { loadData, loadHospitals, loadParks, loadCctv, loadStations } from "./data.js";
 import { MODES, MODE_LABEL, evaluate } from "./scoring.js";
 import { countPerFeature, percentileScores, withinRadius, distM, centroid } from "./gis.js";
 import { searchPlace } from "./kakao.js";
@@ -30,10 +30,11 @@ let DATA = null;
 let HOSP = null;       // 의료기관 {points, sample, ...} 또는 null
 let CCTV = null;       // CCTV {points:[lng,lat,분류,대수], sample, ...} 또는 null
 let PARK = null;       // 공원 {points:[lng,lat,분류,이름,면적㎡], sample, ...} 또는 null
+let STATIONS = null;   // 지하철역 {points:[lng,lat,이름]} 또는 null
 let FEATURES = null;   // 행정동 경계 feature 배열 또는 null
 let probe = null;      // 지도에서 찍은 분석 지점 {lng, lat}
 const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원", P: "약국" };
-const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]), wCommute: 0, work: null };
+const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]), wCommute: 0, work: null, wStation: 0 };
 let densityCache = { key: "", map: null };
 let parkCache = null;
 let cctvCache = null;
@@ -173,6 +174,7 @@ function reasonsOf(r, f) {
   if (f.useMed && r.m) items.push([f.wM, r.m.score, "병원·약국 밀도"]);
   if (f.usePark && r.pk) items.push([Math.max(f.wPA, f.wPC), Math.max(r.pk.scoreArea, r.pk.scoreCnt), "공원"]);
   if (f.useSafe && r.sf) items.push([f.wS, r.sf.score, "CCTV 밀도"]);
+  if (f.useStn && r.st) items.push([f.wT, r.st.score, `${r.st.name}역 접근성(${Math.round(r.st.d)}m)`]);
   if (f.useComm && r.cm) items.push([f.wC, r.cm.score, `직장 거리(${r.cm.km.toFixed(1)}km)`]);
   const strong = items.filter(([, sc]) => sc >= 60).sort((a, b) => b[0] * b[1] - a[0] * a[1]).slice(0, 3);
   const weak = items.filter(([w, sc]) => w >= 3 && sc < 30);
@@ -193,6 +195,32 @@ function reasonsOf(r, f) {
   return d;
 }
 
+// 지하철: 행정동 중심점에서 가장 가까운 역까지 직선거리(m). 가까울수록 높은 점수(백분위).
+function stationByUnit(units) {
+  const out = new Map();
+  if (!STATIONS || !FEATURES) return out;
+  if (!centroidCache) centroidCache = new Map(FEATURES.map((f) => [f, centroid(f.geometry)]));
+  const items = units.filter((u) => u.feature).map((u) => {
+    const [lng, lat] = centroidCache.get(u.feature);
+    return { u, ...nearestStation(lng, lat) };
+  });
+  const scores = percentileScores(items.map((x) => -x.d));
+  items.forEach((x, i) => out.set(x.u.key, { d: x.d, name: x.name, score: scores[i] }));
+  return out;
+}
+
+function nearestStation(lng, lat) {
+  let best = { d: Infinity, name: "" };
+  for (const p of STATIONS.points) {
+    if (Math.abs(p[1] - lat) > 0.05) continue;       // 위도 5km 넘게 차이 나면 건너뛴다
+    const d = distM(lng, lat, p[0], p[1]);
+    if (d < best.d) best = { d, name: p[2] };
+  }
+  return best;
+}
+// 직선거리를 도보 분으로 환산(우회 1.3배, 분당 80m). 대략값이다.
+const walkMin = (m) => Math.max(1, Math.round((m * 1.3) / 80));
+
 function priceText(r) {
   const s = r.ev.stat;
   if (!s) return "-";
@@ -211,6 +239,9 @@ function render() {
   const safe = safetyByUnit(units);
   const useSafe = safe.size > 0 && sel.wSafe > 0;
   const wS = useSafe ? sel.wSafe : 0;
+  const stn = stationByUnit(units);
+  const useStn = stn.size > 0 && sel.wStation > 0;
+  const wT = useStn ? sel.wStation : 0;
   const comm = commuteByUnit(units);
   const useComm = comm.size > 0 && sel.wCommute > 0;
   const wC = useComm ? sel.wCommute : 0;
@@ -223,15 +254,16 @@ function render() {
     const pk = park.get(u.key) || null;
     const sf = safe.get(u.key) || null;
     const cm = comm.get(u.key) || null;
+    const st = stn.get(u.key) || null;
     let total = null;
     if (ev.status === "ok") {
-      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC], [sf ? sf.score : null, wS], [cm ? cm.score : null, wC]].filter(([v, w]) => v !== null && w > 0);
+      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC], [sf ? sf.score : null, wS], [cm ? cm.score : null, wC], [st ? st.score : null, wT]].filter(([v, w]) => v !== null && w > 0);
       const wsum = parts.reduce((a, [, w]) => a + w, 0);
       total = wsum ? Math.round(parts.reduce((a, [v, w]) => a + v * w, 0) / wsum) : ev.score;
     }
     const lowHidden = state.hideLow && ev.stat && ev.stat.low_sample;
     const status = lowHidden || ev.status === "nodata" ? "nodata" : ev.status;
-    return { u, ev, m, pk, sf, cm, total, status };
+    return { u, ev, m, pk, sf, cm, st, total, status };
   });
   const ok = rows.filter((r) => r.status === "ok").sort((a, b) => b.total - a.total || b.ev.score - a.ev.score);
   const over = rows.filter((r) => r.status === "over").sort((a, b) => b.ev.margin - a.ev.margin);
@@ -243,6 +275,7 @@ function render() {
     if (r.ev.score !== null) bits.push(`예산 ${r.ev.score}점`);
     if (r.m) bits.push(`의료기관 ${r.m.count}곳 (${r.m.perKm2.toFixed(0)}곳/㎢, ${r.m.score}점)`);
     if (r.cm) bits.push(`직장까지 ${r.cm.km.toFixed(1)}km`);
+    if (r.st) bits.push(`${r.st.name}역 ${Math.round(r.st.d)}m`);
     if (r.sf) bits.push(`CCTV ${Math.round(r.sf.cams).toLocaleString()}대 (${r.sf.perKm2.toFixed(0)}대/㎢, ${r.sf.score}점)`);
     if (r.pk) bits.push(`공원 ${r.pk.count}곳 (면적 비율 ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}% ${r.pk.scoreArea}점 · 개수 ${r.pk.scoreCnt}점)`);
     return bits.join(" · ");
@@ -262,6 +295,7 @@ function render() {
   if (usePark) pchip(`공원 ${lvl(Math.max(wPA, wPC))}`);
   if (useSafe) pchip(`안전 ${lvl(wS)}`);
   if (useComm) pchip(`통근 ${lvl(wC)}`);
+  if (useStn) pchip(`지하철 ${lvl(wT)}`);
   $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band].replace(/\s*\(.*\)/, "")} · 조건에 맞는 ${ok.length}곳 / 전체 ${totalN}곳`;
 
   const list = $("list");
@@ -278,10 +312,11 @@ function render() {
     if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
     if (useSafe && r.sf) chips.appendChild(el("span", "mini", `안전 ${r.sf.score} · ${Math.round(r.sf.cams).toLocaleString()}대`));
     if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 면적 ${r.pk.scoreArea} · 개수 ${r.pk.scoreCnt} (${r.pk.count}곳)`));
+    if (useStn && r.st) chips.appendChild(el("span", "mini", `${r.st.name}역 도보 약 ${walkMin(r.st.d)}분`));
     if (useComm && r.cm) chips.appendChild(el("span", "mini", `직장 ${r.cm.km.toFixed(1)}km`));
     mid.appendChild(chips);
     if (no) {
-      const why = reasonsOf(r, { useMed, usePark, useSafe, useComm, wM, wPA, wPC, wS, wC, wB });
+      const why = reasonsOf(r, { useMed, usePark, useSafe, useComm, useStn, wT, wM, wPA, wPC, wS, wC, wB });
       if (why) mid.appendChild(why);
     }
     const sc = el("div", "score");
@@ -304,6 +339,7 @@ function render() {
     (useMed ? "의료 점수: 행정동 안의 의료기관 수를 면적(㎢)으로 나눈 밀도를 서울 6개 구 행정동끼리 비교한 백분위(0~100)입니다. " : "") +
     (useSafe ? "안전 점수: 방범·어린이보호 목적 CCTV 카메라 대수를 동 면적으로 나눈 밀도의 백분위입니다(CCTV 입력 수준은 지자체마다 달라 구별 차이는 실제 안전도와 다를 수 있습니다). " : "") +
     (usePark ? "공원 면적 점수: 행정동 안 공원 면적 / 동 면적의 백분위, 공원 개수 점수: 행정동 안 공원 수 / 동 면적(곳/㎢)의 백분위입니다. 공원은 중심점 기준이라 큰 공원은 한 동에 몰려 계산됩니다. " : "") +
+    (useStn ? "지하철 점수: 동 중심점에서 가장 가까운 지하철역까지 직선거리가 가까울수록 높은 백분위입니다. 도보 시간은 직선거리에 1.3배 우회와 분당 80m를 적용한 대략값이며, 실제 집 위치에 따라 달라집니다. " : "") +
     (useComm ? "직장 점수: 동 중심점에서 직장까지 직선거리가 가까울수록 높은 백분위입니다(실제 대중교통 시간과는 다를 수 있습니다). " : "") +
     "종합 점수는 가중치 비율의 평균입니다. 가격은 법정동 단위라 한 법정동에 여러 행정동이 속하면 같은 값을 씁니다.";
   renderProbe();
@@ -312,7 +348,7 @@ function render() {
 // 지도에서 찍은 지점의 반경 분석
 function renderProbe() {
   const box = $("probe");
-  box.hidden = !(HOSP || PARK || CCTV);
+  box.hidden = !(HOSP || PARK || CCTV || STATIONS);
   if (box.hidden) return;
   if (!probe) {
     box.textContent = "지도를 눌러 보세요. 그 주변의 의료기관과 공원을 분석해 드려요.";
@@ -347,6 +383,10 @@ function renderProbe() {
     }
     lines.push(`공원 ${hit.length}곳 (합계 ${Math.round(area).toLocaleString()}㎡)` + (nearest ? ` · 가장 가까운 1만㎡ 이상 공원 ${Math.round(nearest.d).toLocaleString()}m (${nearest.name})` : ""));
   }
+  if (STATIONS) {
+    const n = nearestStation(probe.lng, probe.lat);
+    if (n.d < Infinity) lines.push(`가장 가까운 지하철역 ${n.name}역 ${Math.round(n.d).toLocaleString()}m (도보 약 ${walkMin(n.d)}분)`);
+  }
   if (CCTV) {
     const hit = withinRadius(CCTV.points, probe.lng, probe.lat, sel.radius, sel.cctvCats);
     lines.push(`CCTV ${hit.reduce((a, p) => a + p[3], 0).toLocaleString()}대 (방범·어린이보호)`);
@@ -361,6 +401,7 @@ function buildControls() {
   show("medControls", !!HOSP);
   show("parkControls", !!PARK);
   show("commuteControls", !!FEATURES);
+  show("stationControls", !!STATIONS);
   show("probeControls", !!(HOSP || PARK || CCTV));
   const mk = (id, key, fmt) => {
     const inp = $(id), out = $(id + "V");
@@ -372,6 +413,7 @@ function buildControls() {
   mk("wBudget", "wBudget", (v) => String(v));
   mk("radius", "radius", (v) => (v >= 1000 ? `${(v / 1000).toFixed(1)}km` : `${v}m`));
   mk("wCommute", "wCommute", (v) => String(v));
+  if (STATIONS) mk("wStation", "wStation", (v) => String(v));
   if (HOSP) {
     const cats = $("cats");
     cats.replaceChildren();
@@ -473,6 +515,7 @@ function buildWizardSteps() {
   }));
   steps.push(level("집 근처에 공원이 있으면 좋겠어요?", "공원 면적 비율과 공원 개수를 함께 봐요.", ["wParkArea", "wParkCnt"], () => !!PARK));
   steps.push(level("방범·안전은 얼마나 신경 쓰세요?", "방범·어린이보호 CCTV 밀도로 비교해요. 지자체마다 등록 수준이 달라 참고용이에요.", "wSafe", () => !!CCTV));
+  steps.push(level("지하철역이 가까운 게 얼마나 중요해요?", "동 중심에서 가장 가까운 역까지 거리로 비교해요.", "wStation", () => !!STATIONS));
   steps.push({
     title: "직장(또는 학교)은 어디예요?",
     sub: "지도를 눌러 위치를 고르면, 가까운 동네에 점수를 더 줘요. 건너뛰어도 돼요.",
@@ -596,6 +639,7 @@ async function init() {
   HOSP = FEATURES ? await loadHospitals() : null;   // 의료기관·공원 분석은 경계가 있어야 가능
   PARK = FEATURES ? await loadParks() : null;
   CCTV = FEATURES ? await loadCctv() : null;
+  STATIONS = FEATURES ? await loadStations() : null;
   if (HOSP && HOSP.sample) {
     const w = document.createElement("div");
     w.className = "banner";
@@ -614,7 +658,7 @@ async function init() {
     w.textContent = "CCTV 위치·대수는 샘플(가상)입니다. 실제 설치 현황이 아닙니다. 실데이터 수집이 끝나면 자동으로 교체됩니다.";
     b.after(w);
   }
-  onProbe((lng, lat) => { if (HOSP || PARK || CCTV) { probe = { lng, lat }; renderProbe(); } });
+  onProbe((lng, lat) => { if (HOSP || PARK || CCTV || STATIONS) { probe = { lng, lat }; renderProbe(); } });
   buildControls();
   buildTabs(); buildSliders(); buildBands();
   $("redoTop").addEventListener("click", () => startWizard(0));

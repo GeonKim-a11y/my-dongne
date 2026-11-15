@@ -1,5 +1,5 @@
 // 카카오 지도 SDK의 주소/장소 검색만 사용한다. (JavaScript 키는 등록한 도메인에서만 동작하는 공개용 키)
-export const KAKAO_JS_KEY = "28fcc922d3d8007321e4ca256170e53f";
+export const KAKAO_JS_KEY = "123b8448ec1fea071481d628563973dd";
 let loading = null;
 
 export function loadKakao() {

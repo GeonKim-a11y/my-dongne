@@ -33,6 +33,13 @@ export const LEVELS = [
   { v: 5, label: "아주 중요해요" },
 ];
 
+export const LEVELS_SHORT = [
+  { v: 0, label: "상관없음" },
+  { v: 1, label: "조금" },
+  { v: 3, label: "중요" },
+  { v: 5, label: "매우" },
+];
+
 /** 가까운 값으로 맞춰 현재 선택 표시 (0,1,3,5 사이의 값이 들어와도 동작) */
 export function nearestLevel(v, levels = LEVELS) {
   return levels.reduce((best, l) => (Math.abs(l.v - v) < Math.abs(best.v - v) ? l : best), levels[0]).v;

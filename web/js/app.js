@@ -3,7 +3,7 @@ import { loadData, loadHospitals, loadParks, loadCctv, loadStations } from "./da
 import { MODES, MODE_LABEL, evaluate } from "./scoring.js";
 import { countPerFeature, percentileScores, withinRadius, distM, centroid } from "./gis.js";
 import { searchPlace } from "./kakao.js";
-import { runWizard, optionCards, LEVELS, nearestLevel } from "./wizard.js";
+import { runWizard, optionCards, LEVELS, LEVELS_SHORT, nearestLevel } from "./wizard.js";
 import { initMap, updateMap, getFeatures, onProbe, showPoints, showParks, showCctv, showProbe, showWork, createPicker, refreshMap } from "./map.js";
 
 const $ = (id) => document.getElementById(id);
@@ -34,7 +34,7 @@ let STATIONS = null;   // 지하철역 {points:[lng,lat,이름]} 또는 null
 let FEATURES = null;   // 행정동 경계 feature 배열 또는 null
 let probe = null;      // 지도에서 찍은 분석 지점 {lng, lat}
 const CATS = { H: "병원급", C: "의원", D: "치과", K: "한의원", P: "약국" };
-const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]), wCommute: 0, work: null, wStation: 0 };
+const sel = { cats: new Set(["H", "C"]), wBudget: 3, wMed: 2, wParkArea: 1, wParkCnt: 1, radius: 1000, showPts: false, showParks: false, wSafe: 1, showCctv: false, cctvCats: new Set(["B", "K"]), wCommute: 0, work: null, wStation: 1 };
 let densityCache = { key: "", map: null };
 let parkCache = null;
 let cctvCache = null;
@@ -450,22 +450,19 @@ const BAND_HINT = { S: "혼자 · 신혼", M: "2~3인 가족", L: "4인 이상" 
 function buildWizardSteps() {
   const steps = [];
   steps.push({
-    title: "어떤 형태의 집을 찾으세요?",
+    title: "어떤 집을 찾으세요?",
+    sub: "예산을 넘는 동네는 순위에서 빠져요.",
     build(body) {
-      optionCards(body, MODES.map((m) => ({ v: m, label: MODE_LABEL[m] })), state.mode, (v) => { state.mode = v; }, "opts row");
-    },
-  });
-  steps.push({
-    title: "예산은 어느 정도예요?",
-    sub: "이 금액을 넘는 동네는 순위에서 빠져요.",
-    build(body) {
+      const mode = document.createElement("div");
+      body.appendChild(mode);
       const box = document.createElement("div");
+      box.className = "qgap";
       body.appendChild(box);
-      const draw = () => {
+      const drawSliders = () => {
         box.replaceChildren();
         SLIDERS[state.mode].forEach((sl) => {
           const wrap = document.createElement("div");
-          wrap.style.marginBottom = "18px";
+          wrap.style.marginBottom = "14px";
           const label = document.createElement("label");
           const name = document.createElement("span");
           name.textContent = sl.label;
@@ -481,41 +478,70 @@ function buildWizardSteps() {
           box.appendChild(wrap);
         });
       };
-      draw();
+      optionCards(mode, MODES.map((m) => ({ v: m, label: MODE_LABEL[m] })), state.mode, (v) => { state.mode = v; drawSliders(); }, "opts row three");
+      drawSliders();
       const q = document.createElement("div");
       q.className = "qgap";
       const l = document.createElement("label");
       l.style.marginBottom = "10px";
-      l.textContent = "필요한 크기는요?";
+      l.textContent = "필요한 크기";
       const hold = document.createElement("div");
       q.append(l, hold);
       body.appendChild(q);
-      optionCards(hold, Object.entries(DATA.bands).map(([k, label]) => ({ v: k, label: label.replace(/\s*\(.*\)/, ""), sub: `${(label.match(/\((.*)\)/) || [])[1] || ""}${BAND_HINT[k] ? " · " + BAND_HINT[k] : ""}` })), state.band, (v) => { state.band = v; }, "opts row");
+      optionCards(hold, Object.entries(DATA.bands).map(([k, label]) => ({ v: k, label: label.replace(/\s*\(.*\)/, ""), sub: (label.match(/\((.*)\)/) || [])[1] || "" })), state.band, (v) => { state.band = v; }, "opts row three");
     },
   });
-  const level = (title, sub, key, show, extra) => ({
-    title, sub, show,
+  // 중요도 질문들을 한 화면에: 항목마다 4단계 선택
+  steps.push({
+    title: "무엇이 중요하세요?",
+    sub: "항목마다 얼마나 중요한지 골라 주세요. 중요한 만큼 순위에 더 반영돼요.",
     build(body) {
-      optionCards(body, LEVELS, nearestLevel(Array.isArray(key) ? sel[key[0]] : sel[key]), (v) => {
-        (Array.isArray(key) ? key : [key]).forEach((k) => { sel[k] = v; });
+      const rows = [];
+      rows.push({ name: "예산 여유", desc: "예산보다 싼 동네를 위로", keys: ["wBudget"] });
+      if (HOSP) rows.push({ name: "병원·약국", desc: "동네 안 의료기관 밀도", keys: ["wMed"] });
+      if (PARK) rows.push({ name: "공원", desc: "공원 면적·개수", keys: ["wParkArea", "wParkCnt"] });
+      if (CCTV) rows.push({ name: "방범·안전", desc: "CCTV 밀도 (참고용)", keys: ["wSafe"] });
+      if (STATIONS) rows.push({ name: "지하철역", desc: "가장 가까운 역까지 거리", keys: ["wStation"] });
+      rows.forEach((r) => {
+        const row = document.createElement("div");
+        row.className = "lvrow";
+        const head = document.createElement("div");
+        head.className = "lvhead";
+        const n = document.createElement("b");
+        n.textContent = r.name;
+        const d = document.createElement("small");
+        d.textContent = r.desc;
+        head.append(n, d);
+        const seg = document.createElement("div");
+        seg.className = "seg4";
+        const cur = nearestLevel(sel[r.keys[0]]);
+        LEVELS_SHORT.forEach((lv) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = lv.label;
+          if (lv.v === cur) b.className = "on";
+          b.onclick = () => {
+            seg.querySelectorAll("button").forEach((x) => x.classList.remove("on"));
+            b.classList.add("on");
+            r.keys.forEach((k) => { sel[k] = lv.v; });
+          };
+          seg.appendChild(b);
+        });
+        row.append(head, seg);
+        body.appendChild(row);
       });
-      if (extra) extra(body);
+      if (HOSP && HOSP.categories && "P" in HOSP.categories) {
+        const l = document.createElement("label");
+        l.className = "chk qgap";
+        const c = document.createElement("input");
+        c.type = "checkbox";
+        c.checked = sel.cats.has("P");
+        c.addEventListener("input", () => { c.checked ? sel.cats.add("P") : sel.cats.delete("P"); });
+        l.append(c, document.createTextNode(" 의료에 약국도 포함"));
+        body.appendChild(l);
+      }
     },
   });
-  steps.push(level("병원·약국이 가까운 게 얼마나 중요해요?", "동네 안의 의료기관 밀도(㎢당 개수)로 비교해요.", "wMed", () => !!HOSP, (body) => {
-    if (!(HOSP.categories && "P" in HOSP.categories)) return;
-    const l = document.createElement("label");
-    l.className = "chk qgap";
-    const c = document.createElement("input");
-    c.type = "checkbox";
-    c.checked = sel.cats.has("P");
-    c.addEventListener("input", () => { c.checked ? sel.cats.add("P") : sel.cats.delete("P"); });
-    l.append(c, document.createTextNode(" 약국도 함께 셀게요"));
-    body.appendChild(l);
-  }));
-  steps.push(level("집 근처에 공원이 있으면 좋겠어요?", "공원 면적 비율과 공원 개수를 함께 봐요.", ["wParkArea", "wParkCnt"], () => !!PARK));
-  steps.push(level("방범·안전은 얼마나 신경 쓰세요?", "방범·어린이보호 CCTV 밀도로 비교해요. 지자체마다 등록 수준이 달라 참고용이에요.", "wSafe", () => !!CCTV));
-  steps.push(level("지하철역이 가까운 게 얼마나 중요해요?", "동 중심에서 가장 가까운 역까지 거리로 비교해요.", "wStation", () => !!STATIONS));
   steps.push({
     title: "직장(또는 학교)은 어디예요?",
     sub: "지도를 눌러 위치를 고르면, 가까운 동네에 점수를 더 줘요. 건너뛰어도 돼요.",
@@ -587,11 +613,6 @@ function buildWizardSteps() {
       skip.onclick = () => { sel.work = null; sel.wCommute = 0; finishWizard(); };
       body.appendChild(skip);
     },
-  });
-  steps.push({
-    title: "예산 여유는 얼마나 중요해요?",
-    sub: "높을수록 예산보다 싼 동네가 위로 올라와요. 낮으면 예산 안에서 다른 조건을 우선해요.",
-    build(body) { optionCards(body, LEVELS.slice(1), nearestLevel(sel.wBudget), (v) => { sel.wBudget = v; }); },
   });
   return steps;
 }

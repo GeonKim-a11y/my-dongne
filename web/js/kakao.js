@@ -16,20 +16,33 @@ export function loadKakao() {
   return loading;
 }
 
-/** 주소(도로명·지번)를 먼저 찾고, 없으면 건물·장소명으로 찾는다. 결과: [{name, addr, lng, lat}] */
+/** 주소와 장소(건물·역·터미널·회사명)를 함께 찾는다. 숫자가 들어 있으면 주소 결과를, 아니면 장소 결과를 먼저 보여준다. 결과: [{name, addr, lng, lat}] */
 export async function searchPlace(query) {
   const kakao = await loadKakao();
   const q = query.trim();
   if (!q) return [];
   const svc = kakao.maps.services;
-  const run = (fn) => new Promise((resolve) => fn((data, status) => resolve(status === svc.Status.OK ? data : [])));
-  let rows = await run((cb) => new svc.Geocoder().addressSearch(q, cb));
-  if (rows.length) return rows.slice(0, 5).map((r) => {
+  const run = (fn) => new Promise((resolve) => fn((data, status) => {
+    if (status === svc.Status.ERROR) console.warn("카카오 검색 오류", q);
+    resolve(status === svc.Status.OK ? data : []);
+  }));
+  const [addr, place] = await Promise.all([
+    run((cb) => new svc.Geocoder().addressSearch(q, cb)),
+    run((cb) => new svc.Places().keywordSearch(q, cb, { location: new kakao.maps.LatLng(37.5665, 126.978), sort: kakao.maps.services.SortBy.DISTANCE })),
+  ]);
+  const fromAddr = addr.map((r) => {
     const road = r.road_address || null;
     const bname = road && road.building_name ? road.building_name : "";
-    const addr = road ? road.address_name : r.address_name;
-    return { name: bname || addr, addr: bname ? `${addr}${r.address && r.address.address_name ? ` (지번 ${r.address.address_name.replace(/^서울\s*/, "")})` : ""}` : (r.address ? `지번 ${r.address.address_name}` : addr), lng: Number(r.x), lat: Number(r.y) };
+    const base = road ? road.address_name : r.address_name;
+    return { name: bname || base, addr: bname ? base : (r.address ? `지번 ${r.address.address_name}` : base), lng: Number(r.x), lat: Number(r.y) };
   });
-  rows = await run((cb) => new svc.Places().keywordSearch(q, cb, { location: new kakao.maps.LatLng(37.5665, 126.978), radius: 30000 }));
-  return rows.slice(0, 5).map((r) => ({ name: r.place_name, addr: r.road_address_name || r.address_name, lng: Number(r.x), lat: Number(r.y) }));
+  const fromPlace = place.map((r) => ({ name: r.place_name, addr: r.road_address_name || r.address_name, lng: Number(r.x), lat: Number(r.y) }));
+  const merged = /\d/.test(q) ? [...fromAddr, ...fromPlace] : [...fromPlace, ...fromAddr];
+  const seen = new Set();
+  return merged.filter((r) => {
+    const k = `${r.lng.toFixed(4)},${r.lat.toFixed(4)}`;
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  }).slice(0, 6);
 }

@@ -177,7 +177,7 @@ function reasonsOf(r, f) {
   if (f.useStn && r.st) items.push([f.wT, r.st.score, `${r.st.name}역 접근성(${Math.round(r.st.d)}m)`]);
   if (f.useComm && r.cm) items.push([f.wC, r.cm.score, `직장 거리(${r.cm.km.toFixed(1)}km)`]);
   const strong = items.filter(([, sc]) => sc >= 60).sort((a, b) => b[0] * b[1] - a[0] * a[1]).slice(0, 3);
-  const weak = items.filter(([w, sc]) => w >= 3 && sc < 30);
+  const weak = items.filter(([w, sc]) => w >= 1 && sc < 35).sort((a, b) => a[1] - b[1]).slice(0, 2);
   if (!strong.length && !weak.length) return null;
   const d = document.createElement("div");
   d.className = "why";
@@ -289,13 +289,10 @@ function render() {
   const prof = $("profile");
   prof.replaceChildren();
   const pchip = (t) => { const e = document.createElement("span"); e.className = "mini"; e.textContent = t; prof.appendChild(e); };
-  const lvl = (w) => (LEVELS.find((l) => l.v === nearestLevel(w)) || LEVELS[0]).label;
-  pchip(`예산 ${lvl(wB)}`);
-  if (useMed) pchip(`의료 ${lvl(wM)}`);
-  if (usePark) pchip(`공원 ${lvl(Math.max(wPA, wPC))}`);
-  if (useSafe) pchip(`안전 ${lvl(wS)}`);
-  if (useComm) pchip(`통근 ${lvl(wC)}`);
-  if (useStn) pchip(`지하철 ${lvl(wT)}`);
+  const preset = PRESETS.find((x) => x.id === presetId);
+  if (preset) pchip(preset.label);
+  if (giveUp) pchip(`${GIVEUP[giveUp]} 양보`);
+  if (useComm) pchip("직장 거리 반영");
   $("sumSub").textContent = `${MODE_LABEL[mode]} · ${DATA.bands[state.band].replace(/\s*\(.*\)/, "")} · 조건에 맞는 ${ok.length}곳 / 전체 ${totalN}곳`;
 
   const list = $("list");
@@ -445,6 +442,32 @@ function buildControls() {
 }
 
 // ---------- 질문 마법사 ----------
+// 우리가 정한 기본 가중치(0~5). 질문 한 번으로 항목별 중요도를 대신한다.
+const PRESETS = [
+  { id: "solo", label: "혼자 사는 직장인", sub: "출퇴근과 역세권, 안전 중심", why: "역 접근성·통근·안전 비중을 높였어요.", w: { wBudget: 3, wMed: 1, wPark: 1, wSafe: 3, wStation: 5, wCommute: 5 } },
+  { id: "couple", label: "신혼부부", sub: "안전과 통근, 생활 인프라 균형", why: "안전·통근·의료·공원을 고르게 반영했어요.", w: { wBudget: 3, wMed: 3, wPark: 3, wSafe: 5, wStation: 3, wCommute: 3 } },
+  { id: "family", label: "아이 있는 가족", sub: "공원·병원·안전 중심", why: "공원·의료·안전 비중을 높였어요.", w: { wBudget: 3, wMed: 5, wPark: 5, wSafe: 5, wStation: 1, wCommute: 1 } },
+  { id: "calm", label: "조용하고 안전한 곳", sub: "안전과 공원 중심", why: "안전·공원 비중을 높였어요.", w: { wBudget: 3, wMed: 3, wPark: 3, wSafe: 5, wStation: 1, wCommute: 1 } },
+  { id: "value", label: "가성비 우선", sub: "예산을 가장 아끼고 싶어요", why: "예산 여유 비중을 가장 높였어요.", w: { wBudget: 5, wMed: 1, wPark: 1, wSafe: 3, wStation: 3, wCommute: 3 } },
+];
+const GIVEUP = { wBudget: "예산 여유", wMed: "병원·약국", wPark: "공원", wSafe: "방범·안전", wStation: "지하철역" };
+let presetId = "solo";
+let giveUp = null;     // 하나만 양보한다면 고른 항목 키
+
+function applyPreset() {
+  const p = PRESETS.find((x) => x.id === presetId) || PRESETS[0];
+  const w = p.w;
+  sel.wBudget = w.wBudget; sel.wMed = w.wMed; sel.wParkArea = w.wPark; sel.wParkCnt = w.wPark;
+  sel.wSafe = w.wSafe; sel.wStation = w.wStation;
+  sel.wCommute = sel.work ? w.wCommute : 0;
+  presetCommute = w.wCommute;
+  if (giveUp) {
+    if (giveUp === "wPark") { sel.wParkArea = Math.min(sel.wParkArea, 1); sel.wParkCnt = Math.min(sel.wParkCnt, 1); }
+    else sel[giveUp] = Math.min(sel[giveUp], 1);
+  }
+}
+let presetCommute = 3;
+
 const BAND_HINT = { S: "혼자 · 신혼", M: "2~3인 가족", L: "4인 이상" };
 
 function buildWizardSteps() {
@@ -491,45 +514,52 @@ function buildWizardSteps() {
       optionCards(hold, Object.entries(DATA.bands).map(([k, label]) => ({ v: k, label: label.replace(/\s*\(.*\)/, ""), sub: (label.match(/\((.*)\)/) || [])[1] || "" })), state.band, (v) => { state.band = v; }, "opts row three");
     },
   });
-  // 중요도 질문들을 한 화면에: 항목마다 4단계 선택
+  // 생활 유형(프리셋) + 하나만 양보한다면
   steps.push({
-    title: "무엇이 중요하세요?",
-    sub: "항목마다 얼마나 중요한지 골라 주세요. 중요한 만큼 순위에 더 반영돼요.",
+    title: "어떤 생활을 하고 계세요?",
+    sub: "가장 가까운 유형을 고르면, 그에 맞게 항목별 비중을 정해 드려요.",
     build(body) {
-      const rows = [];
-      rows.push({ name: "예산 여유", desc: "예산보다 싼 동네를 위로", keys: ["wBudget"] });
-      if (HOSP) rows.push({ name: "병원·약국", desc: "동네 안 의료기관 밀도", keys: ["wMed"] });
-      if (PARK) rows.push({ name: "공원", desc: "공원 면적·개수", keys: ["wParkArea", "wParkCnt"] });
-      if (CCTV) rows.push({ name: "방범·안전", desc: "CCTV 밀도 (참고용)", keys: ["wSafe"] });
-      if (STATIONS) rows.push({ name: "지하철역", desc: "가장 가까운 역까지 거리", keys: ["wStation"] });
-      rows.forEach((r) => {
-        const row = document.createElement("div");
-        row.className = "lvrow";
-        const head = document.createElement("div");
-        head.className = "lvhead";
-        const n = document.createElement("b");
-        n.textContent = r.name;
-        const d = document.createElement("small");
-        d.textContent = r.desc;
-        head.append(n, d);
-        const seg = document.createElement("div");
-        seg.className = "seg4";
-        const cur = nearestLevel(sel[r.keys[0]]);
-        LEVELS_SHORT.forEach((lv) => {
-          const b = document.createElement("button");
-          b.type = "button";
-          b.textContent = lv.label;
-          if (lv.v === cur) b.className = "on";
-          b.onclick = () => {
-            seg.querySelectorAll("button").forEach((x) => x.classList.remove("on"));
-            b.classList.add("on");
-            r.keys.forEach((k) => { sel[k] = lv.v; });
-          };
-          seg.appendChild(b);
-        });
-        row.append(head, seg);
-        body.appendChild(row);
-      });
+      const list = document.createElement("div");
+      body.appendChild(list);
+      const why = document.createElement("p");
+      why.className = "picked";
+      const giveBox = document.createElement("div");
+      giveBox.className = "qgap";
+      const drawPresets = () => {
+        optionCards(list, PRESETS.map((p) => ({ v: p.id, label: p.label, sub: p.sub })), presetId, (v) => { presetId = v; showWhy(); applyPreset(); drawGive(); });
+      };
+      const showWhy = () => { why.textContent = (PRESETS.find((x) => x.id === presetId) || PRESETS[0]).why; };
+      const drawGive = () => {
+        giveBox.replaceChildren();
+        const l = document.createElement("label");
+        l.style.marginBottom = "4px";
+        l.textContent = "모두 가질 순 없어요. 하나만 양보한다면?";
+        const small = document.createElement("p");
+        small.className = "qsub";
+        small.style.margin = "0 0 10px";
+        small.textContent = "고르지 않아도 돼요.";
+        const hold = document.createElement("div");
+        giveBox.append(l, small, hold);
+        const items = [["wBudget", "예산 여유"], HOSP ? ["wMed", "병원·약국"] : null, PARK ? ["wPark", "공원"] : null, CCTV ? ["wSafe", "방범·안전"] : null, STATIONS ? ["wStation", "지하철역"] : null].filter(Boolean);
+        const wrap = document.createElement("div");
+        wrap.className = "chips";
+        const mkChip = (key, text) => {
+          const c = document.createElement("button");
+          c.type = "button";
+          c.className = "chip" + (giveUp === key ? " on" : "");
+          c.textContent = text;
+          c.onclick = () => { giveUp = giveUp === key ? null : key; applyPreset(); drawGive(); };
+          wrap.appendChild(c);
+        };
+        items.forEach(([k, t]) => mkChip(k, t));
+        hold.appendChild(wrap);
+      };
+      applyPreset();
+      drawPresets();
+      showWhy();
+      body.appendChild(why);
+      body.appendChild(giveBox);
+      drawGive();
       if (HOSP && HOSP.categories && "P" in HOSP.categories) {
         const l = document.createElement("label");
         l.className = "chk qgap";
@@ -554,7 +584,7 @@ function buildWizardSteps() {
       const setInfo = () => { info.textContent = sel.work ? "✔ 위치를 골랐어요. 눌러서 바꿀 수 있어요." : ""; };
       setInfo();
       body.append(mapEl, info);
-      const pick = (lng, lat) => { sel.work = { lng, lat }; if (!sel.wCommute) sel.wCommute = 3; setInfo(); drawLevel(); };
+      const pick = (lng, lat) => { sel.work = { lng, lat }; if (!sel.wCommute) sel.wCommute = presetCommute || 3; setInfo(); drawLevel(); };
       const picker = createPicker(mapEl, FEATURES, sel.work, pick);
       // 주소·건물명 검색 (카카오). 실패하면 지도 클릭만 안내한다.
       const form = document.createElement("form");
@@ -604,7 +634,7 @@ function buildWizardSteps() {
       const hold = document.createElement("div");
       lv.append(l, hold);
       body.appendChild(lv);
-      const drawLevel = () => { lv.hidden = !sel.work; optionCards(hold, LEVELS.slice(1), nearestLevel(sel.wCommute || 3), (v) => { sel.wCommute = v; }); };
+      const drawLevel = () => { lv.hidden = !sel.work; optionCards(hold, LEVELS.slice(1), nearestLevel(sel.wCommute || presetCommute || 3), (v) => { sel.wCommute = v; }); };
       drawLevel();
       const skip = document.createElement("button");
       skip.type = "button";

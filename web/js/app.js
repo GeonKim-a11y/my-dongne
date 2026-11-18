@@ -1,7 +1,7 @@
 // 화면 로직: 매매/전세/월세 탭, 예산 입력, 결과 표.
 import { loadData, loadHospitals, loadParks, loadCctv, loadStations } from "./data.js";
 import { MODES, MODE_LABEL, evaluate } from "./scoring.js";
-import { countPerFeature, percentileScores, withinRadius, distM, centroid } from "./gis.js";
+import { countPerFeature, percentileScores, withinRadius, distM, centroid, stationAccess } from "./gis.js";
 import { searchPlace } from "./kakao.js";
 import { runWizard, optionCards, LEVELS, LEVELS_SHORT, nearestLevel } from "./wizard.js";
 import { initMap, updateMap, getFeatures, onProbe, showPoints, showParks, showCctv, showProbe, showWork, createPicker, refreshMap } from "./map.js";
@@ -39,6 +39,7 @@ let densityCache = { key: "", map: null };
 let parkCache = null;
 let cctvCache = null;
 let centroidCache = null;
+let stationCache = null;
 const syncers = [];     // 슬라이더 값 표시를 sel 에서 다시 맞추는 함수들
 let wizardStep = 0;
 
@@ -172,9 +173,9 @@ function reasonsOf(r, f) {
   const items = [];
   if (r.ev.score !== null && f.wB > 0) items.push([f.wB, r.ev.score, "예산 여유"]);
   if (f.useMed && r.m) items.push([f.wM, r.m.score, "병원·약국 밀도"]);
-  if (f.usePark && r.pk) items.push([Math.max(f.wPA, f.wPC), Math.max(r.pk.scoreArea, r.pk.scoreCnt), "공원"]);
+  if (f.usePark && r.pk) items.push([Math.max(f.wPA, f.wPC), Math.round((r.pk.scoreArea * f.wPA + r.pk.scoreCnt * f.wPC) / ((f.wPA + f.wPC) || 1)), "공원"]);
   if (f.useSafe && r.sf) items.push([f.wS, r.sf.score, "CCTV 밀도"]);
-  if (f.useStn && r.st) items.push([f.wT, r.st.score, `${r.st.name}역 접근성(${Math.round(r.st.d)}m)`]);
+  if (f.useStn && r.st) items.push([f.wT, r.st.score, `역세권 비율(${Math.round(r.st.share * 100)}%)`]);
   if (f.useComm && r.cm) items.push([f.wC, r.cm.score, `직장 거리(${r.cm.km.toFixed(1)}km)`]);
   const strong = items.filter(([, sc]) => sc >= 60).sort((a, b) => b[0] * b[1] - a[0] * a[1]).slice(0, 3);
   const weak = items.filter(([w, sc]) => w >= 1 && sc < 35).sort((a, b) => a[1] - b[1]).slice(0, 2);
@@ -195,17 +196,16 @@ function reasonsOf(r, f) {
   return d;
 }
 
-// 지하철: 행정동 중심점에서 가장 가까운 역까지 직선거리(m). 가까울수록 높은 점수(백분위).
+// 지하철: 동 안을 150m 격자로 나눠, 역 500m(걸어서 약 8분) 안에 드는 땅의 비율(역세권 비율)을 구한다.
+// 중심점 한 곳이 아니라 동 전체를 보기 때문에 큰 동·긴 동도 공정하게 비교된다. 비율이 같으면 평균 거리가 짧은 쪽이 높다.
+const STATION_RADIUS = 500;
 function stationByUnit(units) {
   const out = new Map();
   if (!STATIONS || !FEATURES) return out;
-  if (!centroidCache) centroidCache = new Map(FEATURES.map((f) => [f, centroid(f.geometry)]));
-  const items = units.filter((u) => u.feature).map((u) => {
-    const [lng, lat] = centroidCache.get(u.feature);
-    return { u, ...nearestStation(lng, lat) };
-  });
-  const scores = percentileScores(items.map((x) => -x.d));
-  items.forEach((x, i) => out.set(x.u.key, { d: x.d, name: x.name, score: scores[i] }));
+  if (!stationCache) stationCache = new Map(FEATURES.map((f) => [f, stationAccess(f.geometry, STATIONS.points, STATION_RADIUS, 150)]));
+  const items = units.filter((u) => u.feature).map((u) => ({ u, a: stationCache.get(u.feature) }));
+  const scores = percentileScores(items.map((x) => x.a.share - x.a.meanM / 1e6));
+  items.forEach((x, i) => out.set(x.u.key, { share: x.a.share, meanM: x.a.meanM, score: scores[i] }));
   return out;
 }
 
@@ -257,7 +257,7 @@ function render() {
     const st = stn.get(u.key) || null;
     let total = null;
     if (ev.status === "ok") {
-      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? pk.scoreArea : null, wPA], [pk ? pk.scoreCnt : null, wPC], [sf ? sf.score : null, wS], [cm ? cm.score : null, wC], [st ? st.score : null, wT]].filter(([v, w]) => v !== null && w > 0);
+      const parts = [[ev.score, wB], [m ? m.score : null, wM], [pk ? (pk.scoreArea * wPA + pk.scoreCnt * wPC) / ((wPA + wPC) || 1) : null, Math.max(wPA, wPC)], [sf ? sf.score : null, wS], [cm ? cm.score : null, wC], [st ? st.score : null, wT]].filter(([v, w]) => v !== null && w > 0);
       const wsum = parts.reduce((a, [, w]) => a + w, 0);
       total = wsum ? Math.round(parts.reduce((a, [v, w]) => a + v * w, 0) / wsum) : ev.score;
     }
@@ -275,7 +275,7 @@ function render() {
     if (r.ev.score !== null) bits.push(`예산 ${r.ev.score}점`);
     if (r.m) bits.push(`의료기관 ${r.m.count}곳 (${r.m.perKm2.toFixed(0)}곳/㎢, ${r.m.score}점)`);
     if (r.cm) bits.push(`직장까지 ${r.cm.km.toFixed(1)}km`);
-    if (r.st) bits.push(`${r.st.name}역 ${Math.round(r.st.d)}m`);
+    if (r.st) bits.push(`역세권 ${Math.round(r.st.share * 100)}% (평균 ${Math.round(r.st.meanM)}m, ${r.st.score}점)`);
     if (r.sf) bits.push(`CCTV ${Math.round(r.sf.cams).toLocaleString()}대 (${r.sf.perKm2.toFixed(0)}대/㎢, ${r.sf.score}점)`);
     if (r.pk) bits.push(`공원 ${r.pk.count}곳 (면적 비율 ${(Math.min(r.pk.ratio, 1) * 100).toFixed(1)}% ${r.pk.scoreArea}점 · 개수 ${r.pk.scoreCnt}점)`);
     return bits.join(" · ");
@@ -309,7 +309,7 @@ function render() {
     if (useMed && r.m) chips.appendChild(el("span", "mini", `의료 ${r.m.score} · ${r.m.count}곳`));
     if (useSafe && r.sf) chips.appendChild(el("span", "mini", `안전 ${r.sf.score} · ${Math.round(r.sf.cams).toLocaleString()}대`));
     if (usePark && r.pk) chips.appendChild(el("span", "mini", `공원 면적 ${r.pk.scoreArea} · 개수 ${r.pk.scoreCnt} (${r.pk.count}곳)`));
-    if (useStn && r.st) chips.appendChild(el("span", "mini", `${r.st.name}역 도보 약 ${walkMin(r.st.d)}분`));
+    if (useStn && r.st) chips.appendChild(el("span", "mini", `역세권 ${Math.round(r.st.share * 100)}%`));
     if (useComm && r.cm) chips.appendChild(el("span", "mini", `직장 ${r.cm.km.toFixed(1)}km`));
     mid.appendChild(chips);
     if (no) {
@@ -336,7 +336,7 @@ function render() {
     (useMed ? "의료 점수: 행정동 안의 의료기관 수를 면적(㎢)으로 나눈 밀도를 서울 6개 구 행정동끼리 비교한 백분위(0~100)입니다. " : "") +
     (useSafe ? "안전 점수: 방범·어린이보호 목적 CCTV 카메라 대수를 동 면적으로 나눈 밀도의 백분위입니다(CCTV 입력 수준은 지자체마다 달라 구별 차이는 실제 안전도와 다를 수 있습니다). " : "") +
     (usePark ? "공원 면적 점수: 행정동 안 공원 면적 / 동 면적의 백분위, 공원 개수 점수: 행정동 안 공원 수 / 동 면적(곳/㎢)의 백분위입니다. 공원은 중심점 기준이라 큰 공원은 한 동에 몰려 계산됩니다. " : "") +
-    (useStn ? "지하철 점수: 동 중심점에서 가장 가까운 지하철역까지 직선거리가 가까울수록 높은 백분위입니다. 도보 시간은 직선거리에 1.3배 우회와 분당 80m를 적용한 대략값이며, 실제 집 위치에 따라 달라집니다. " : "") +
+    (useStn ? "지하철 점수: 동 안을 150m 격자로 나눠 지하철역 500m(걸어서 약 8분) 안에 드는 비율(역세권 비율)의 백분위입니다. 직선거리 기준이라 실제 도보 경로와는 다를 수 있습니다. " : "") +
     (useComm ? "직장 점수: 동 중심점에서 직장까지 직선거리가 가까울수록 높은 백분위입니다(실제 대중교통 시간과는 다를 수 있습니다). " : "") +
     "종합 점수는 가중치 비율의 평균입니다. 가격은 법정동 단위라 한 법정동에 여러 행정동이 속하면 같은 값을 씁니다.";
   renderProbe();

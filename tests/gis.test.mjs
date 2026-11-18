@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { centroid, distM, pointInGeom, areaKm2, countPerFeature, percentileScores, withinRadius } from "../web/js/gis.js";
+import { sampleInside, stationAccess, centroid, distM, pointInGeom, areaKm2, countPerFeature, percentileScores, withinRadius } from "../web/js/gis.js";
 
 const sq = { type: "Polygon", coordinates: [[[127, 37.5], [127.01, 37.5], [127.01, 37.51], [127, 37.51], [127, 37.5]]] };
 
@@ -50,4 +50,16 @@ test("중심점: 사각형의 중심, 여러 조각이면 큰 조각", () => {
   assert.ok(Math.abs(c[0] - 127.005) < 1e-6 && Math.abs(c[1] - 37.505) < 1e-6);
   const multi = { type: "MultiPolygon", coordinates: [sq.coordinates, [[[128, 38], [128.001, 38], [128.001, 38.001], [128, 38.001], [128, 38]]]] };
   assert.ok(Math.abs(centroid(multi)[0] - 127.005) < 1e-6);
+});
+
+test("격자점은 모두 도형 안에 있고 개수가 면적에 비례", () => {
+  const pts = sampleInside(sq, 150);
+  assert.ok(pts.length > 20 && pts.every(([x, y]) => pointInGeom(x, y, sq)));
+});
+test("역세권 비율: 역이 한가운데면 반경 안 비율이 늘고, 멀면 0", () => {
+  const mid = stationAccess(sq, [[127.005, 37.505, "가운데"]], 700);
+  const far = stationAccess(sq, [[127.5, 37.9, "먼곳"]], 700);
+  assert.ok(mid.share > 0.5 && mid.share <= 1, mid.share);
+  assert.equal(far.share, 0);
+  assert.ok(mid.meanM < far.meanM);
 });

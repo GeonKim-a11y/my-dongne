@@ -106,3 +106,34 @@ export function centroid(geom) {
   }
   return best.c;
 }
+
+/** 도형 안쪽에 stepM 간격으로 격자점을 찍어 돌려준다([[lng, lat], ...]). 너무 작은 도형은 중심점 하나를 준다. */
+export function sampleInside(geom, stepM = 150) {
+  let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+  for (const [outer] of polys(geom)) for (const [x, y] of outer) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  const dLat = stepM / 111320;
+  const dLng = stepM / (111320 * Math.cos(((y0 + y1) / 2) * Math.PI / 180));
+  const pts = [];
+  for (let y = y0 + dLat / 2; y < y1; y += dLat) for (let x = x0 + dLng / 2; x < x1; x += dLng) if (pointInGeom(x, y, geom)) pts.push([x, y]);
+  return pts.length ? pts : [centroid(geom)];
+}
+
+/**
+ * 동 안의 격자점마다 가장 가까운 역까지 거리를 구해, 역세권(반경 radiusM 이내) 비율과 평균 거리를 돌려준다.
+ * stations: [[lng, lat, 이름], ...]
+ */
+export function stationAccess(geom, stations, radiusM = 700, stepM = 150) {
+  const pts = sampleInside(geom, stepM);
+  let near = 0, sum = 0;
+  for (const [x, y] of pts) {
+    let best = Infinity;
+    for (const s of stations) {
+      if (Math.abs(s[1] - y) > 0.03) continue;
+      const d = distM(x, y, s[0], s[1]);
+      if (d < best) best = d;
+    }
+    if (best <= radiusM) near++;
+    sum += best === Infinity ? 5000 : best;
+  }
+  return { share: near / pts.length, meanM: sum / pts.length, n: pts.length };
+}

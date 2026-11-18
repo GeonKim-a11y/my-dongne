@@ -115,4 +115,4 @@ web/data/                  market_by_dong.sample.json (가상), 수집 후 marke
 - 결과 화면의 '질문 다시 하기'와 '어떤 집을 찾으세요?' 카드에서 조건을 바로 고칠 수 있습니다.
 
 ## 지하철역 접근성
-`scripts/fetch_stations.py`(OpenStreetMap Overpass, 키 불필요)가 `web/data/stations.json`을 만들고, 앱은 행정동 중심점에서 가장 가까운 역까지의 직선거리를 백분위 점수로 쓴다. 도보 시간은 직선거리 × 1.3 ÷ 분당 80m 의 대략값이다. 파일이 없으면 이 지표만 빠진다. 갱신: Actions 탭의 `update-stations` 수동 실행.
+`scripts/fetch_stations.py`(OpenStreetMap Overpass, 키 불필요)가 `web/data/stations.json`을 만들고, 앱은 행정동 안을 150m 격자로 나눠 역 500m 안에 드는 땅의 비율(역세권 비율)을 구해 백분위 점수로 쓴다(비율이 같으면 평균 거리가 짧은 쪽이 높음). 지도 클릭 분석은 클릭 지점에서 가장 가까운 역까지 거리를 보여준다. 파일이 없으면 이 지표만 빠진다. 갱신: Actions 탭의 `update-stations` 수동 실행.
